@@ -1,13 +1,14 @@
 import React from "react";
 import ModuleCard from "./module";
+import { useNavigate } from "react-router-dom";
 import { Row } from "antd";
 import "../../assets/css/Style.css";
 
 const Module: React.FC = () => {
+  const navigate = useNavigate();
   const handleModuleClick = (moduleId: string) => {
-    if (moduleId === "vente") {
-      //page vente
-    }
+    navigate(moduleId);
+    console.log(moduleId);
   };
 
   return (

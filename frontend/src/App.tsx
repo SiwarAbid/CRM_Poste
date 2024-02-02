@@ -1,14 +1,16 @@
-import React from "react";
 import "./App.css";
 import Accueil from "./components/Accueil";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Vente from "./components/VenteComponents/Vente";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Accueil />
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Accueil />} />
+        <Route path="/vente" element={<Vente />} />
+      </Routes>
+    </Router>
   );
 }
 
