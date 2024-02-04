@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.2.18",
     "antd": "^5.13.3",
     "boostrap": "^2.0.0",
+    "mdi-material-ui": "^7.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",

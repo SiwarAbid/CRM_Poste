@@ -6737,6 +6737,11 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
+mdi-material-ui@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.npmjs.org/mdi-material-ui/-/mdi-material-ui-7.8.0.tgz#cd08de23cfeddd7b593d71dbd533d873409f5f63"
+  integrity sha512-jLZKGDZ94Mav4c3r8Cyehqs1dHOviXuIm7vGGCIyxIf4UsWNiveQTCoCrKG2K63IWCHcMg0EfjLFqh4LGaYvoQ==
+
 mdn-data@2.0.14:
   version "2.0.14"
   resolved "https://registry.npmjs.org/mdn-data/-/mdn-data-2.0.14.tgz#7113fc4281917d63ce29b43446f701e68c25ba50"
