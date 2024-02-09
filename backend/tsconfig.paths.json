@@ -5,7 +5,10 @@
             "@root": ["."],
             "@helpers/*": ["./helpers/*"],
             "@routes/*": ["./routes/*"],
-            "@controllers/*": ["./controllers/*"]
+            "@controllers/*": ["./controllers/*"],
+            "@root/*": [""],
+      "@services/*": ["services/*"],
+      "@bd/*": ["Database/*"]
         }
     }
 }

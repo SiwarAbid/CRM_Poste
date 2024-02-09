@@ -22,7 +22,7 @@ const Module: React.FC = () => {
         <ModuleCard
           title="Gestion de Client"
           description="Description du module..."
-          onClick={() => handleModuleClick("client")}
+          onClick={() => handleModuleClick("clients")}
         />
         <ModuleCard
           title="Gestion d'Opportunité"
