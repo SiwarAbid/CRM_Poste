@@ -10,13 +10,6 @@ interface Client {
 
 export const Liste: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
-  // const [derPage] = useState<number>(10);
-  // const nextPage = (event: React.ChangeEvent<unknown>, pageNumber: number) => {
-  //   setPage(pageNumber);
-  // };
-  //   const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //     setPerPage(parseInt(e.target.value));
-  // };
 
   const fetchClients = async () => {
     try {

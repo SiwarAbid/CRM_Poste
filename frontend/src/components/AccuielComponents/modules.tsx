@@ -10,24 +10,17 @@ const Module: React.FC = () => {
     navigate(moduleId);
     console.log(moduleId);
   };
-
+  const style = { display: "inline-block" };
   return (
     <div>
-      <Row gutter={16}>
+      <Row gutter={16} style={style}>
         <ModuleCard
-          title="Gestion de Vente"
-          description="Description du module..."
-          onClick={() => handleModuleClick("vente")}
+          title="Partucilier"
+          onClick={() => handleModuleClick("client")}
         />
         <ModuleCard
-          title="Gestion de Client"
-          description="Description du module..."
-          onClick={() => handleModuleClick("clients")}
-        />
-        <ModuleCard
-          title="Gestion d'Opportunité"
-          description="Description du module..."
-          onClick={() => handleModuleClick("opportunite")}
+          title="Entreprise"
+          onClick={() => handleModuleClick("entreprise")}
         />
       </Row>
     </div>
