@@ -67,7 +67,8 @@ export const PageLogin: React.FC = () => {
       if (response.ok) {
         setOK(false);
         setToken(responseData.token);
-        Cookies.set("token", token, { expires: 1 }); // Stockez le token dans un cookie avec une expiration de 1 jour
+        console.log(token);
+        Cookies.set("token", token); // Stockez le token dans un cookie
         const next = await getNext(responseData.token);
         if (next)
           if (responseData.user[0].isAdmin) navigate("/accueil");
