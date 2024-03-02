@@ -281,6 +281,122 @@ app.put("/modifierclient", async (req: Request, res: Response) => {
   }
 });
 
+// CRUD Gestionnaire
+app.get("/gestionnaires", async (req: Request, res: Response) => {
+  try {
+    const getAllUser = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM users WHERE status = 'gestionnaire';`;
+        db.query(sql, (error: Error, response: Response) => {
+          if (error) {
+            console.log("Error executing query (getAll_user):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS");
+            resolve(response);
+          }
+        });
+      });
+    };
+    const result = await getAllUser();
+    return res.status(200).json({ result: result });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get all user" });
+  }
+});
+
+app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    const addUser = async (data: user): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO users (nom_prenom, user_name, contact, adresse, password, status) VALUES (?, ?, ?, ?, ?, 'gestionnaire')`;
+        const values = [
+          data.nom_prenom,
+          data.user_name,
+          JSON.stringify(data.contact),
+          JSON.stringify(data.adresse),
+          data.password,
+        ];
+
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log("Error executing query (add_user):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS");
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await addUser(data);
+    return res.status(200).json({ result: "ADDED" });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to add user" });
+  }
+});
+app.delete("/supprimergestionnaire", async (req: Request, res: Response) => {
+  try {
+    const id = req.query.id;
+
+    const deleteUser = async (id: number): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM users WHERE status = 'gestionnaire' AND id_user = ${id}`;
+        db.query(sql, (error: Error, response: Response) => {
+          if (error) {
+            console.log("Error executing query (delete_user):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS");
+            resolve(response);
+          }
+        });
+      });
+    };
+    const result = await deleteUser(Number(id));
+    return res.status(200).json({ result: "DELETED" });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+app.put("/modifiergestionnaire", async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    const updateUser = async (data: user): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, contact = ?, adresse = ?, password = ? WHERE status = 'gestionnaire' AND id_user = ?`;
+
+        const values = [
+          data.nom_prenom,
+          data.user_name,
+          JSON.stringify(data.contact),
+          JSON.stringify(data.adresse),
+          data.password,
+          data.id,
+        ];
+
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log("Error executing query (update_user):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS");
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await updateUser(data);
+    return res.status(200).json({ result: "UPDATED" });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to add user" });
+  }
+});
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
