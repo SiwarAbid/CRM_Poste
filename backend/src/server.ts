@@ -4,14 +4,12 @@ import express, {
   urlencoded,
   Request,
   Response,
-  NextFunction,
 } from "express";
 import cors from "cors";
 import "dotenv/config";
 import mysql from "mysql2";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { Next } from "mysql2/typings/mysql/lib/parsers/typeCast";
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -39,23 +37,18 @@ const db = mysql.createPool({
   database: process.env.MYSQL_DATABASE || "la_poste",
 });
 
-// db.connect((err: Error) => {
-//   if (err) {
-//     throw err;
-//   }
-//   console.log("Connected to the database");
-// });
-
 //API Route: CRUD User
 type User = {
-  id: number;
-  nom: string;
-  adresse: string;
-  num_tel: number;
-  email: string;
+  id_user: number;
+  nom_prenom: string;
+  user_name: string;
+  contact: JSON;
+  adresse: JSON;
+  password: string;
+  status: number;
 };
 type Admin = {
-  matricule: string;
+  user_name: string;
   nom_admin: string;
   email: string;
   num_tel: number;
@@ -68,8 +61,8 @@ app.post("/addadmin", async (request: Request, response: Response) => {
     const data = request.body;
     const add_user = async (data: Admin): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO admin (matricule, nom_admin, email, num_tel, region, mdp, isAdmin) 
-        VALUES ('${data.matricule}','${data.nom_admin}','${data.email}',${data.num_tel},'${data.region}','${data.mdp}',${data.isAdmin})`;
+        const sql = `INSERT INTO admin (user_name, nom_admin, email, num_tel, region, mdp, isAdmin) 
+        VALUES ('${data.user_name}','${data.nom_admin}','${data.email}',${data.num_tel},'${data.region}','${data.mdp}',${data.isAdmin})`;
         db.query(sql, (error: Error, response: Response) => {
           if (error) {
             console.log("Error executing query (add_user):", error.message);
@@ -92,14 +85,15 @@ app.post("/addadmin", async (request: Request, response: Response) => {
 app.post("/userLogin", async (request: Request, response: Response) => {
   try {
     console.log("*** USERLOGIN *** ");
-    const matricule = request.body.matricule;
+    const user_name = request.body.matricule;
     const password = request.body.password;
     const authTokenClient = async (
-      matricule: string,
+      user_name: string,
       password: string
     ): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM admin WHERE matricule='${matricule}' AND mdp='${password}';`;
+        console.log("username: ", user_name, " password: ", password);
+        const sql = `SELECT * FROM users WHERE user_name='${user_name}' AND password='${password}';`;
         db.query(sql, (error: Error, response: any) => {
           if (error) {
             console.log(
@@ -110,9 +104,18 @@ app.post("/userLogin", async (request: Request, response: Response) => {
           } else {
             console.log("Query result:", "SUCCESS");
             if (response[0] != null) {
-              const token = jwt.sign({ matricule }, "PFE2024");
+              console.log("response: ", response);
+              let secretKey = "PFE2024";
+              if (response[0].status == 0) {
+                secretKey = "AdminPFE2024";
+              } else if (response[0].status == 1) {
+                secretKey = "gestionnairePFE2024";
+              }
+              const token = jwt.sign({ user_name }, secretKey);
               resolve({ token, response });
             } else {
+              console.log("response: ", response);
+
               console.log("Invalid credentials");
               reject(error);
             }
@@ -120,7 +123,7 @@ app.post("/userLogin", async (request: Request, response: Response) => {
         });
       });
     };
-    const res = await authTokenClient(matricule, password);
+    const res = await authTokenClient(user_name, password);
     console.log("res: ", res);
     return response.status(200).json({ token: res.token, user: res.response });
   } catch (error) {
@@ -131,11 +134,14 @@ app.post("/userLogin", async (request: Request, response: Response) => {
 app.get("/accueil", async (req: Request, res: Response) => {
   try {
     const token = req.headers["authorization"];
+    const status = req.headers["status"];
     console.log("Token: ", token);
     if (!token)
       return res.status(401).json({ message: "Unauthorized (without token)" });
-
-    jwt.verify(token, "PFE2024", (err, decoded: any) => {
+    let secretKey = "PFE2024";
+    if (Number(status) === 0) secretKey = "AdminPFE2024";
+    else if (Number(status) === 1) secretKey = "gestionnairePFE2024";
+    jwt.verify(token, secretKey, (err, decoded: any) => {
       if (err)
         return res
           .status(401)
@@ -286,12 +292,13 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
   try {
     const getAllUser = async (): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM users WHERE status = 'gestionnaire';`;
+        const sql = `SELECT * FROM users WHERE status = 1;`;
         db.query(sql, (error: Error, response: Response) => {
           if (error) {
             console.log("Error executing query (getAll_user):", error.message);
             reject(error);
           } else {
+            // console.log("response: ", response);
             console.log("Query result:", "SUCCESS");
             resolve(response);
           }
@@ -299,6 +306,8 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
       });
     };
     const result = await getAllUser();
+    // console.log("response: ", result);
+
     return res.status(200).json({ result: result });
   } catch (error) {
     return res.status(500).json({ error: "Failed to get all user" });
@@ -311,7 +320,7 @@ app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
 
     const addUser = async (data: user): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO users (nom_prenom, user_name, contact, adresse, password, status) VALUES (?, ?, ?, ?, ?, 'gestionnaire')`;
+        const sql = `INSERT INTO users (nom_prenom, user_name, contact, adresse, password, status) VALUES (?, ?, ?, ?, ?, 1)`;
         const values = [
           data.nom_prenom,
           data.user_name,
@@ -343,7 +352,7 @@ app.delete("/supprimergestionnaire", async (req: Request, res: Response) => {
 
     const deleteUser = async (id: number): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `DELETE FROM users WHERE status = 'gestionnaire' AND id_user = ${id}`;
+        const sql = `DELETE FROM users WHERE status = 1 AND id_user = ${id}`;
         db.query(sql, (error: Error, response: Response) => {
           if (error) {
             console.log("Error executing query (delete_user):", error.message);
@@ -368,7 +377,7 @@ app.put("/modifiergestionnaire", async (req: Request, res: Response) => {
 
     const updateUser = async (data: user): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, contact = ?, adresse = ?, password = ? WHERE status = 'gestionnaire' AND id_user = ?`;
+        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, contact = ?, adresse = ?, password = ? WHERE status = 1 AND id_user = ?`;
 
         const values = [
           data.nom_prenom,
