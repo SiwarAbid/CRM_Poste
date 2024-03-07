@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import "../../../../assets/css/TableauEmployee.css";
+import "../../../../assets/css/TableauEmployee.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -159,7 +159,7 @@ export default function TableauEmployes() {
 
     fetchData();
   }, []);
-  console.log("data: ", dataArray);
+  // console.log("data: ", dataArray);
 
   return (
     <>
@@ -210,7 +210,7 @@ export default function TableauEmployes() {
                   </th>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Address</th>
+                  {/* <th>Address</th> */}
                   <th>Phone</th>
                   <th>Actions</th>
                 </tr>
@@ -231,12 +231,12 @@ export default function TableauEmployes() {
                     </td>
                     <td>{value.nom_prenom}</td>
                     <td>{value.contact.email}</td>
-                    <td>
+                    {/* <td>
                       {value.adresse.code_postal} {value.adresse.ville}
                       {","}
                       {value.adresse.pays}
                       {"."}
-                    </td>
+                    </td> */}
                     <td>{value.contact.telephone}</td>
                     <td>
                       <a

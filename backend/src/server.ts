@@ -186,7 +186,7 @@ type user = {
   password: string;
 };
 type contact = {
-  num_tel: number;
+  telephone: number;
   email: string;
 };
 type adresse = {
@@ -288,6 +288,20 @@ app.put("/modifierclient", async (req: Request, res: Response) => {
 });
 
 // CRUD Gestionnaire
+type gestionnaire = {
+  matricule_gestionnaire: string;
+  nom_prenom: string;
+  email: string;
+  phone: number;
+  post: string;
+  bureau_postal: number;
+  acces: {
+    client: boolean;
+    reclamation: boolean;
+    offre: boolean;
+  };
+  info_sup: {};
+};
 app.get("/gestionnaires", async (req: Request, res: Response) => {
   try {
     const getAllUser = async (): Promise<any> => {
@@ -299,7 +313,7 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
             reject(error);
           } else {
             // console.log("response: ", response);
-            console.log("Query result:", "SUCCESS");
+            console.log("Query result (SELECT Gestionnaire):", "SUCCESS");
             resolve(response);
           }
         });
@@ -317,30 +331,63 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
 app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
   try {
     const data = req.body;
-
-    const addUser = async (data: user): Promise<any> => {
+    console.log("data: ", data);
+    const addUser = async (data: gestionnaire): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO users (nom_prenom, user_name, contact, adresse, password, status) VALUES (?, ?, ?, ?, ?, 1)`;
-        const values = [
+        const contact: contact = {
+          telephone: Number(data.phone),
+          email: data.email,
+        };
+        const user_name: string = data.nom_prenom.replace(" ", ".");
+        const sqluser = `INSERT INTO users (nom_prenom, user_name, contact, status)
+        VALUES (?, ?, ?, 1);`;
+        const values_user = [
           data.nom_prenom,
-          data.user_name,
-          JSON.stringify(data.contact),
-          JSON.stringify(data.adresse),
-          data.password,
+          user_name,
+          JSON.stringify(contact),
         ];
-
-        db.query(sql, values, (error, results, fields) => {
+        const recpId = `SET @last_id = LAST_INSERT_ID();`;
+        const sql = `INSERT INTO gestionnaire (matricule_gestionnaire, id_user, post, bureau_postal, acces)
+        VALUES ('${data.matricule_gestionnaire}', @last_id, '${data.post}', ${data.bureau_postal},?);`;
+        const values_gestionnaire = [JSON.stringify(data.acces)];
+        db.query(sqluser, values_user, (error, results, fields) => {
           if (error) {
-            console.log("Error executing query (add_user):", error.message);
+            console.log(
+              "Error executing query SQL USER (ADD Gestionnaire): ",
+              error.message
+            );
             reject(error);
           } else {
-            console.log("Query result:", "SUCCESS");
-            resolve(results);
+            console.log("SUCCESS SQL USER");
+            db.query(recpId, (error, result) => {
+              if (error) {
+                console.log(
+                  "Error executing query RECAP ID (ADD Gestionnaire): ",
+                  error.message
+                );
+                reject(error);
+              } else {
+                console.log("SUCCESS RECAP ID");
+                db.query(sql, values_gestionnaire, (error, result, fields) => {
+                  if (error) {
+                    console.log(
+                      "Error executing query SQL Gestonnaire:",
+                      error.message
+                    );
+                    reject(error);
+                  } else {
+                    console.log("SUCCESS SQL Gestionnaire");
+                    resolve(result);
+                  }
+                });
+              }
+            });
           }
         });
       });
     };
     const result = await addUser(data);
+    console.log("result: ", result);
     return res.status(200).json({ result: "ADDED" });
   } catch (error) {
     return res.status(500).json({ error: "Failed to add user" });
