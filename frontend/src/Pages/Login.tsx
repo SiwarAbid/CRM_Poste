@@ -12,6 +12,15 @@ interface User {
   matricule: string;
   password: string;
 }
+interface UserInfo {
+  id_user: number;
+  nom_prenom: string;
+  user_name: string;
+  contact: JSON;
+  adresse: JSON;
+  password: string;
+  status: number;
+}
 export const PageLogin: React.FC = () => {
   const [matricule, setMatricule] = useState("");
   const [password, setPassword] = useState("");
@@ -24,13 +33,17 @@ export const PageLogin: React.FC = () => {
     matricule: matricule,
     password: password,
   };
-  const getNext = async (token: string): Promise<boolean | undefined> => {
+  const getNext = async (data: {
+    token: string;
+    user: Array<UserInfo>;
+  }): Promise<boolean | undefined> => {
     try {
       console.log("getNext ***");
       const response = await fetch("http://localhost:3000/accueil", {
         method: "GET",
         headers: {
-          Authorization: `${token}`,
+          Authorization: `${data.token}`,
+          Status: `${data.user[0].status}`,
         },
       });
       console.log("response: ", response);
@@ -67,12 +80,13 @@ export const PageLogin: React.FC = () => {
       if (response.ok) {
         setOK(false);
         setToken(responseData.token);
-        console.log(token);
-        Cookies.set("token", token); // Stockez le token dans un cookie
-        const next = await getNext(responseData.token);
+        console.log("token: ", responseData.token);
+        Cookies.set(`token${responseData.user[0].status}`, responseData.token); // Stockez le token dans un cookie
+        const next = await getNext(responseData);
         if (next)
-          if (responseData.user[0].isAdmin) navigate("/accueil");
-          else navigate("/CRM-LaPosteTunisienne");
+          if (responseData.user[0].status === 0) navigate("/accueil");
+          else if (responseData.user[0].status === 1) navigate("/CRM-ONP");
+          else navigate("/LaPosteTunisienne");
         else setIsModalOpen(true);
       } else if (!response.ok) {
         setOK(true);

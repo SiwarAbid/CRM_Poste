@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Drawer, List, ListItem, ListItemText } from "@mui/material";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+} from "@mui/material";
 
 const drawerWidth = 240;
 const whiteColor = "#E5E1E1";
@@ -38,7 +44,15 @@ const styleItemHover: React.CSSProperties = {
   fontFamily: "Alice",
   backgroundColor: whiteColor,
 };
-const listItem = ["Accueil", "Paramètre", "Déconnexion", "Inscription"];
+const listItem = [
+  "Accueil",
+  "Gestionnaires",
+  "Paramètre",
+  "Déconnexion",
+  "Inscription",
+];
+const links = ["/accueil", "accueil/gestionnaire", "accueil/parametre", "/", "accueil/inscription"];
+
 const DrawerMenu: React.FC = () => {
   const [etat, setEtat] = useState<Boolean>(true);
   const [clickedIndex, setClickedIndex] = useState<number>(0);
@@ -60,17 +74,19 @@ const DrawerMenu: React.FC = () => {
     >
       <List>
         {listItem.map((item, index) => (
-          <ListItem button key={index} onClick={() => handleClick(index)}>
-            <ListItemText
-              primary={item}
-              style={{
-                fontFamily: "Alice",
-                ...styleItems,
-                ...(clickedIndex === index && styleItemHover),
-              }}
-              onClick={handleEtat}
-            />
-          </ListItem>
+          <ListItemButton component="a" href={links[index]} key={index}>
+            <ListItem key={index} onClick={() => handleClick(index)}>
+              <ListItemText
+                primary={item}
+                style={{
+                  fontFamily: "Alice",
+                  ...styleItems,
+                  ...(clickedIndex === index && styleItemHover),
+                }}
+                onClick={handleEtat}
+              />
+            </ListItem>
+          </ListItemButton>
         ))}
       </List>
     </Drawer>

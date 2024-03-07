@@ -1,36 +1,11 @@
 import React from "react";
-import Cookies from "js-cookie";
-import Modal from "@mui/joy/Modal";
-import ModalDialog from "@mui/joy/ModalDialog";
-import Typography from "@mui/joy/Typography";
+
 const Dashboard = () => {
-  const token = Cookies.get("token");
-  const rootRef = React.useRef<HTMLDivElement>(null);
+
 
   return (
     <div>
-      {token === undefined || null? (
-        <Modal
-          disablePortal
-          disableEnforceFocus
-          disableAutoFocus
-          open={true}
-          container={() => rootRef.current!}
-        >
-          <ModalDialog
-            aria-labelledby="server-modal-title"
-            aria-describedby="server-modal-description"
-            layout="center"
-          >
-            <Typography id="server-modal-title" level="h2">
-              Error:
-            </Typography>
-            <Typography id="server-modal-description" textColor="text.tertiary">
-              You're unauthorized
-            </Typography>
-          </ModalDialog>
-        </Modal>
-      ) : (
+       
         <iframe
           title="PalasteniesDataAnalysis"
           width="1240"
@@ -40,7 +15,7 @@ const Dashboard = () => {
           allowFullScreen={true}
           style={{ marginLeft: "240px" }}
         />
-      )}
+      
     </div>
   );
 };
