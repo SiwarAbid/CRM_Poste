@@ -21,6 +21,36 @@ interface UserInfo {
   password: string;
   status: number;
 }
+
+export const getNext = async (data: {
+  token: string;
+  user: Array<UserInfo>;
+}): Promise<boolean | undefined> => {
+  try {
+    console.log("getNext ***");
+    const response = await fetch("http://localhost:3000/verifytoken", {
+      method: "GET",
+      headers: {
+        Authorization: `${data.token}`,
+        Status: `${data.user[0].status}`,
+      },
+    });
+    console.log("response: ", response);
+    const responseData = await response.json();
+    console.log("responseData Token: ", responseData);
+    if (response.ok) return true;
+    else if (!response.ok) return false;
+    else
+      throw new Error(
+        "Une erreur s'est produite lors de la recupere le token."
+      );
+  } catch (error) {
+    throw new Error(
+      "Une erreur s'est produite lors de la soumission du token."
+    );
+  }
+};
+
 export const PageLogin: React.FC = () => {
   const [matricule, setMatricule] = useState("");
   const [password, setPassword] = useState("");
@@ -33,34 +63,7 @@ export const PageLogin: React.FC = () => {
     matricule: matricule,
     password: password,
   };
-  const getNext = async (data: {
-    token: string;
-    user: Array<UserInfo>;
-  }): Promise<boolean | undefined> => {
-    try {
-      console.log("getNext ***");
-      const response = await fetch("http://localhost:3000/accueil", {
-        method: "GET",
-        headers: {
-          Authorization: `${data.token}`,
-          Status: `${data.user[0].status}`,
-        },
-      });
-      console.log("response: ", response);
-      const responseData = await response.json();
-      console.log("responseData Token: ", responseData);
-      if (response.ok) return true;
-      else if (!response.ok) return false;
-      else
-        throw new Error(
-          "Une erreur s'est produite lors de la recupere le token."
-        );
-    } catch (error) {
-      throw new Error(
-        "Une erreur s'est produite lors de la soumission du token."
-      );
-    }
-  };
+
   const submitForm = async (data: User): Promise<void> => {
     try {
       console.log("SUBMITFORM ");
@@ -189,7 +192,7 @@ export const PageLogin: React.FC = () => {
           </div>
           <div className="remember-forgot">
             <div className="remember-me">
-              <input type="checkbox" id="remember" />
+              <input type="checkbox" id="remember" className="remember" />
               <label htmlFor="remember">Remember me</label>
             </div>
             <div className="forgot">

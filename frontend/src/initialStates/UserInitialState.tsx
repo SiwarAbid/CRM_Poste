@@ -1,8 +1,7 @@
 export type Gestionnaire = {
   matricule_gestionnaire: string;
+  id_user: number;
   nom_prenom: string;
-  email: string;
-  phone: number | null;
   post: string;
   bureau_postal: number;
   acces: {
@@ -12,12 +11,61 @@ export type Gestionnaire = {
   };
   info_sup: {};
 };
+//result select
+export type User = {
+  id_user: number;
+  nom_prenom: string;
+  user_name: string;
+  contact: {
+    email: string;
+    telephone: string;
+  };
+  adresse: {
+    rue: string;
+    pays: string;
+    ville: string;
+    code_postal: string;
+  };
+  password: string;
+  status: number;
+};
+export type Data = {
+  user: User;
+  ges: Gestionnaire;
+};
+// data gestionnaire recuperer du frontend
+export type GesDataSend = {
+  matricule_gestionnaire: string;
+  id_user: number | undefined;
+  nom_prenom: string;
+  email: string;
+  phone: string;
+  post: string;
+  bureau_postal: number;
+  acces: {
+    client: boolean;
+    reclamation: boolean;
+    offre: boolean;
+  };
+};
 
+//data client recuperer du frontend
+export type ClientType = {
+  civil: string;
+  nom_prenom: string;
+  brith_lieu: string;
+  brith_date: string;
+  PI_type: string;
+  PI_num: string;
+  email: string;
+  telephone: string;
+  password: string;
+};
 export const initialStateGestionnaire: Gestionnaire = {
   matricule_gestionnaire: "",
   nom_prenom: "",
-  email: "",
-  phone: null,
+  id_user: 0,
+
   post: "",
   bureau_postal: 1000,
   acces: {

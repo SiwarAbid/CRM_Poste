@@ -3,21 +3,22 @@ import "../../../../assets/css/EmployeeForm.css";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import DeleteBloc from "./FormDelete";
-import FormBloc from "./FormAddEdit";
+import FormBloc from "./FormAdd";
 import {
   Gestionnaire,
   initialStateGestionnaire,
 } from "../../../../initialStates/UserInitialState";
 // import Success from "./Sucess";
-/** EDIT FORM DELETE FORM */
+/** EDIT FORM DELETE FORM **/
 type Data_submit = {
   url: string;
   method: string;
 };
 const Form: React.FC<{
   value: string;
+  identifiant: number;
   elements: { open: boolean; setOpen: Function };
-}> = ({ value, elements }) => {
+}> = ({ identifiant, value, elements }) => {
   const [title, setTitle] = useState<string>("Add Employee");
   const [show, setshow] = useState<boolean>(false);
   const [id, setId] = useState<string>("addEmployeeModal");
@@ -114,11 +115,11 @@ const Form: React.FC<{
                   <div className="modal-header">
                     <h4 className="modal-title">{title}</h4>
                   </div>
-                  {show ? (
-                    <DeleteBloc />
+                  {/* {show ? (
+                    <DeleteBloc  id={identifiant} elements={elements}/>
                   ) : (
-                    <FormBloc data={data} setData={setData} value={value} />
-                  )}
+                    <FormBloc  elements={elements} />
+                  )} */}
                   <div className="modal-footer">
                     <input
                       type="button"

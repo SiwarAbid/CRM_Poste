@@ -131,10 +131,10 @@ app.post("/userLogin", async (request: Request, response: Response) => {
   }
 });
 
-app.get("/accueil", async (req: Request, res: Response) => {
+app.get("/verifytoken", async (req: Request, res: Response) => {
   try {
     const token = req.headers["authorization"];
-    const status = req.headers["status"];
+    const status = req?.headers["status"];
     console.log("Token: ", token);
     if (!token)
       return res.status(401).json({ message: "Unauthorized (without token)" });
@@ -195,28 +195,81 @@ type adresse = {
   ville: string;
   code_postal: number;
 };
+type Brith = {
+  lieu: string;
+  date: string;
+};
+type PI = {
+  type: string;
+  num: string;
+};
+type ClientType = {
+  civil: string;
+  nom_prenom: string;
+  brith_lieu: string;
+  brith_date: string;
+  PI_type: string;
+  PI_num: string;
+  email: string;
+  telephone: string;
+  password: string;
+};
 app.post("/ajouterclient", async (req: Request, res: Response) => {
   try {
     const data = req.body;
 
-    const addUser = async (data: user): Promise<any> => {
+    const addUser = async (data: ClientType): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO users (nom_prenom, user_name, contact, adresse, password, status) VALUES (?, ?, ?, ?, ?, 'client')`;
-        const values = [
+        const contact: contact = {
+          telephone: Number(data.telephone),
+          email: data.email,
+        };
+        const user_name: string = data.nom_prenom.replace(" ", ".");
+        const sqluser = `INSERT INTO users (nom_prenom, user_name, contact, password, status) VALUES (?, ?, ?,?, 2)`;
+        const valuesUser = [
           data.nom_prenom,
-          data.user_name,
-          JSON.stringify(data.contact),
-          JSON.stringify(data.adresse),
+          user_name,
+          JSON.stringify(contact),
           data.password,
         ];
+        const PI: PI = {
+          type: data.PI_type,
+          num: data.PI_num,
+        };
+        const sqlclient = `INSERT INTO client (cin_client, id_user, civil, brith, PI) VALUES (${PI.num},LAST_INSERT_ID(), ?, ?,?);`;
+        const brith: Brith = {
+          lieu: data.brith_lieu,
+          date: data.brith_date,
+        };
 
-        db.query(sql, values, (error, results, fields) => {
+        const valuesClient = [
+          data.civil,
+          JSON.stringify(brith),
+          JSON.stringify(PI),
+        ];
+        db.query(sqluser, valuesUser, (error, results, fields) => {
           if (error) {
             console.log("Error executing query (add_user):", error.message);
             reject(error);
           } else {
-            console.log("Query result:", "SUCCESS");
-            resolve(results);
+            console.log("SUCCESS SQL USER");
+
+            db.query(
+              sqlclient,
+              valuesClient,
+              (errorclient, responseclient: any, firlds) => {
+                if (errorclient) {
+                  console.log(
+                    "Error executing query (add_client):",
+                    errorclient
+                  );
+                  reject(errorclient);
+                } else {
+                  console.log("SUCCESS SQL CLIENT");
+                  resolve(responseclient);
+                }
+              }
+            );
           }
         });
       });
@@ -225,6 +278,40 @@ app.post("/ajouterclient", async (req: Request, res: Response) => {
     return res.status(200).json({ result: "ADDED" });
   } catch (error) {
     return res.status(500).json({ error: "Failed to add user" });
+  }
+});
+
+app.get("/verifyclient", async (rep: Request, res: Response) => {
+  try {
+    const username = rep.query.username;
+    const password = rep.query.password;
+    console.log("username: ", username);
+    console.log("password: ", password);
+    const getClient = async (username: any, password: any): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `SELECT id_user FROM users WHERE status = 2 AND user_name = '${username}' AND password='${password}';`;
+        db.query(sql, (error: Error, response: any) => {
+          if (error) {
+            console.log("Error executing query (getAll_user):", error.message);
+            reject(error);
+          } else {
+            console.log("response: ", response);
+            console.log("SUCCESS SQL USER");
+            if (response[0] != null) {
+              const token = jwt.sign({ username }, "PFE2024");
+              resolve({ token, response });
+            } else console.log("RESPONSE IMPTY !!");
+          }
+        });
+      });
+    };
+    const result = await getClient(username, password);
+    console.log("res: ", result);
+    return res
+      .status(200)
+      .json({ token: result.token, response: result.response });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get all user" });
   }
 });
 app.delete("/supprimerclient", async (req: Request, res: Response) => {
@@ -290,6 +377,7 @@ app.put("/modifierclient", async (req: Request, res: Response) => {
 // CRUD Gestionnaire
 type gestionnaire = {
   matricule_gestionnaire: string;
+  id_user: number;
   nom_prenom: string;
   email: string;
   phone: number;
@@ -306,15 +394,40 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
   try {
     const getAllUser = async (): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM users WHERE status = 1;`;
-        db.query(sql, (error: Error, response: Response) => {
-          if (error) {
-            console.log("Error executing query (getAll_user):", error.message);
-            reject(error);
+        const sqluser = `SELECT * FROM users WHERE status = 1;`;
+        const sqlgestionnaire = `SELECT * FROM gestionnaire;`;
+        db.query(sqluser, (erroruser: Error, response: Response) => {
+          if (erroruser) {
+            console.log(
+              "Error executing query (getAll_user):",
+              erroruser.message
+            );
+            reject(erroruser);
           } else {
             // console.log("response: ", response);
-            console.log("Query result (SELECT Gestionnaire):", "SUCCESS");
-            resolve(response);
+            console.log("Query result (SELECT User): ", "SUCCESS");
+            const responseUser = response;
+            db.query(
+              sqlgestionnaire,
+              (errorgestionnaire: Error, responseGestionnaire: Response) => {
+                if (errorgestionnaire) {
+                  console.log(
+                    "Error executing query (getAll_gestionnaire):",
+                    errorgestionnaire.message
+                  );
+                  reject(errorgestionnaire);
+                } else {
+                  console.log(
+                    "Query result (SELECT Gestionnaire): ",
+                    "SUCCESS"
+                  );
+                  resolve({
+                    user: responseUser,
+                    gestionnaire: responseGestionnaire,
+                  });
+                }
+              }
+            );
           }
         });
       });
@@ -322,7 +435,9 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
     const result = await getAllUser();
     // console.log("response: ", result);
 
-    return res.status(200).json({ result: result });
+    return res
+      .status(200)
+      .json({ user: result.user, gestionnaire: result.gestionnaire });
   } catch (error) {
     return res.status(500).json({ error: "Failed to get all user" });
   }
@@ -393,28 +508,56 @@ app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to add user" });
   }
 });
-app.delete("/supprimergestionnaire", async (req: Request, res: Response) => {
-  try {
-    const id = req.query.id;
 
+app.delete("/supprimerGestionnaires", async (req, res) => {
+  try {
+    const idsToDelete = req.body;
+    // console.log("req: ", req);
+    // console.log("idsToDelete: ", idsToDelete);
     const deleteUser = async (id: number): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `DELETE FROM users WHERE status = 1 AND id_user = ${id}`;
-        db.query(sql, (error: Error, response: Response) => {
+        const sqlgestionnaire = `DELETE FROM gestionnaire WHERE id_user = ${id}`;
+        const sqluser = `DELETE FROM users WHERE status = 1 AND id_user = ${id}`;
+
+        db.query(sqlgestionnaire, (error: Error, response: Response) => {
           if (error) {
-            console.log("Error executing query (delete_user):", error.message);
+            console.log(
+              "Error executing query (delete_gestionnaire):",
+              error.message
+            );
             reject(error);
           } else {
-            console.log("Query result:", "SUCCESS");
-            resolve(response);
+            console.log("SUCCESS SQL Gestionnaire DELETED");
+            db.query(sqluser, (error, response) => {
+              if (error) {
+                console.log(
+                  "Error executing query (delete_user):",
+                  error.message
+                );
+                reject(error);
+              } else {
+                console.log("SUCCESS SQL USER DELETED");
+                resolve(response);
+              }
+            });
           }
         });
       });
     };
-    const result = await deleteUser(Number(id));
-    return res.status(200).json({ result: "DELETED" });
+    await Promise.all(
+      idsToDelete.map(async (id: number) => {
+        await deleteUser(id);
+      })
+    );
+
+    res.status(200).send("Gestionnaires supprimés avec succès");
   } catch (error) {
-    return res.status(500).json({ error: "Failed to delete user" });
+    console.error("Erreur lors de la suppression des gestionnaires:", error);
+    res
+      .status(500)
+      .send(
+        "Une erreur s'est produite lors de la suppression des gestionnaires"
+      );
   }
 });
 
@@ -422,26 +565,63 @@ app.put("/modifiergestionnaire", async (req: Request, res: Response) => {
   try {
     const data = req.body;
 
-    const updateUser = async (data: user): Promise<any> => {
+    const updateUser = async (data: gestionnaire): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, contact = ?, adresse = ?, password = ? WHERE status = 1 AND id_user = ?`;
-
-        const values = [
+        const contact: contact = {
+          telephone: Number(data.phone),
+          email: data.email,
+        };
+        const user_name: string = data.nom_prenom.replace(" ", ".");
+        const sqlUser = `UPDATE users 
+        SET nom_prenom = ?, 
+            user_name = ?, 
+            contact = ? 
+        WHERE id_user = ?;`;
+        const valuesUser = [
           data.nom_prenom,
-          data.user_name,
-          JSON.stringify(data.contact),
-          JSON.stringify(data.adresse),
-          data.password,
-          data.id,
+          user_name,
+          JSON.stringify(contact),
+          data.id_user,
+        ];
+        const sqlGestionnaire = `UPDATE gestionnaire 
+SET matricule_gestionnaire = ?, 
+    post = ?, 
+    bureau_postal = ?, 
+    acces = ? 
+WHERE id_user = ?;`;
+        const valuesGestionnaire = [
+          data.matricule_gestionnaire,
+          data.post,
+          data.bureau_postal,
+          JSON.stringify(data.acces),
+          data.id_user,
         ];
 
-        db.query(sql, values, (error, results, fields) => {
+        db.query(sqlUser, valuesUser, (error, results, fields) => {
           if (error) {
-            console.log("Error executing query (update_user):", error.message);
+            console.log(
+              "Error executing query SQL USER (update_user):",
+              error.message
+            );
             reject(error);
           } else {
-            console.log("Query result:", "SUCCESS");
-            resolve(results);
+            console.log("SUCCESS SQL USER UPDATES");
+            db.query(
+              sqlGestionnaire,
+              valuesGestionnaire,
+              (error, result, fields) => {
+                if (error) {
+                  console.log(
+                    "Error executing query SQL Gestionnaire (UPDATE): ",
+                    error.message
+                  );
+                  reject(error);
+                } else {
+                  console.log("SUCCESS SQL Gestionnaire UPDATE");
+                  resolve(result);
+                }
+              }
+            );
           }
         });
       });
