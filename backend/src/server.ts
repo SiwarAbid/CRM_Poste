@@ -85,7 +85,7 @@ app.post("/addadmin", async (request: Request, response: Response) => {
 app.post("/userLogin", async (request: Request, response: Response) => {
   try {
     console.log("*** USERLOGIN *** ");
-    const user_name = request.body.matricule;
+    const user_name = request.body.username;
     const password = request.body.password;
     const authTokenClient = async (
       user_name: string,

@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
-import "../../assets/css/ConnexionStyle.css";
-import { ClientType } from "../../initialStates/UserInitialState";
-import { getNext } from "../../Pages/Login";
+import "./../assets/css/ConnexionStyle.css";
+import { ClientType } from "../initialStates/UserInitialState";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
+interface UserInfo {
+  id_user: number;
+  nom_prenom: string;
+  user_name: string;
+  contact: JSON;
+  adresse: JSON;
+  password: string;
+  status: number;
+}
 const Connexion: React.FC = () => {
   const [dataLogin, setDataLogin] = useState<{
     username: string;
@@ -28,6 +36,7 @@ const Connexion: React.FC = () => {
     useState<ClientType>(initialdataInsecrire);
   const [token, setToken] = useState(Cookies.get("token2") || "");
   const navigate = useNavigate();
+  const [OK, setOK] = useState(false);
 
   useEffect(() => {
     const switchers = Array.from(document.querySelectorAll(".switcher"));
@@ -50,51 +59,75 @@ const Connexion: React.FC = () => {
       );
     };
   }, []);
-  const onSubmitLogin = (data: { username: string; password: string }) => {
-    console.log("Onsubmit");
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/verifyclient?username=${data.username}&password=${data.password}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+
+  const getNext = async (data: {
+    token: string;
+    user: Array<UserInfo>;
+  }): Promise<boolean | undefined> => {
+    try {
+      console.log("getNext ***");
+      const response = await fetch("http://localhost:3000/verifytoken", {
+        method: "GET",
+        headers: {
+          Authorization: `${data.token}`,
+          Status: `${data.user[0].status}`,
+        },
+      });
+      console.log("response: ", response);
+      const responseData = await response.json();
+      console.log("responseData Token: ", responseData);
+      if (response.ok) return true;
+      else if (!response.ok) return false;
+      else
+        throw new Error(
+          "Une erreur s'est produite lors de la recupere le token."
         );
-        const responseData = await response.json();
+    } catch (error) {
+      throw new Error(
+        "Une erreur s'est produite lors de la soumission du token."
+      );
+    }
+  };
+  const onSubmitLogin = async (data: {
+    username: string;
+    password: string;
+  }): Promise<void> => {
+    try {
+      console.log("SUBMITFORM ");
 
-        if (response.ok) {
-          /** Modal Succes + initialiser les champs s'insecrire */
-          setToken(responseData.token);
-          console.log("token: ", responseData.token);
-          Cookies.set(`token2`, responseData.token);
-          const next = await getNext({
-            token: responseData.token,
-            user: [
-              {
-                id_user: responseData.response[0].id_user,
-                nom_prenom: "",
-                user_name: "",
-                contact: JSON,
-                adresse: JSON,
-                password: "",
-                status: 2,
-              },
-            ],
-          });
-          if (next) navigate("/LaPosteTunisienne");
-          console.log("** SUCCES **");
-        } else {
-          throw new Error("Erreur lors de la soumission du formulaire");
-        }
-      } catch (error) {
-        console.error(error);
+      const response = await fetch("http://localhost:3000/userLogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+
+      console.log("response: ", response);
+      console.log("responseData: ", responseData);
+
+      if (response.ok) {
+        setOK(false);
+        setToken(responseData.token);
+        console.log("token: ", responseData.token);
+        Cookies.set(`token${responseData.user[0].status}`, responseData.token); // Stockez le token dans un cookie
+        const next = await getNext(responseData);
+        if (next)
+          if (responseData.user[0].status === 0) navigate("/accueil");
+          else if (responseData.user[0].status === 1) navigate("/CRM-ONP");
+          else navigate("/LaPosteTunisienne");
+      } else if (!response.ok) {
+        setOK(true);
+        throw new Error(
+          "Une erreur s'est produite lors de la soumission du formulaire."
+        );
       }
-    };
+    } catch (error) {
+      console.log("SUBMITFORM ERROR");
 
-    fetchData();
+      console.error("Erreur de connexion :", error);
+    }
   };
   const handleSubmitLogin = (e: React.FormEvent<HTMLFormElement>) => {
     console.log("handleSubmit");
@@ -143,7 +176,14 @@ const Connexion: React.FC = () => {
     setDataInscrire({ ...dataInscrire, [name]: value });
   };
   console.log("dataInscrire: ", dataInscrire);
-
+  const AlertData: React.FC = () => {
+    return (
+      <div className="alert alert-danger alert-dismissable fade in">
+        <strong>Oh snap!</strong> Change a few things up and try submitting
+        again.
+      </div>
+    );
+  };
   return (
     <section className="forms-section">
       <div className="forms">
@@ -156,6 +196,8 @@ const Connexion: React.FC = () => {
             className="form form-login"
             onSubmit={(e) => handleSubmitLogin(e)}
           >
+            {OK ? <AlertData /> : ""}
+
             <fieldset>
               <legend>
                 Please, enter your user name and password for login.
@@ -181,6 +223,11 @@ const Connexion: React.FC = () => {
                   onChange={handleInputChangeConnexion}
                   required
                 />
+              </div>
+              <div className="input-block">
+                <label>
+                  <a href="/forgot">Forgot password?</a>
+                </label>
               </div>
             </fieldset>
             <button type="submit" className="btn-login">
