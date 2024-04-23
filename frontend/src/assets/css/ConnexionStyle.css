@@ -7,19 +7,19 @@
 body {
   font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial,
     sans-serif;
+    /* background-image: url("../imgs/bgPoste.png"); */
+
 }
 
 .forms-section {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  background-image: url("../imgs/La Poste Tunisienne.png");
+  background-image: url("../imgs/bgPoste.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  width: 100vh;
   width: 100%;
   height: 100%;
   align-items: center;
@@ -73,7 +73,6 @@ body {
   display: block;
   margin-right: -50%;
   margin-left: 50%;
-  /* padding: 0; */
   text-transform: uppercase;
   font-family: inherit;
   font-size: 16px;
@@ -339,7 +338,6 @@ select {
   margin-bottom: 16px;
 }
 
-/*progressbar*/
 #progressbar {
   margin-bottom: 30px;
   overflow: hidden;

@@ -9,7 +9,7 @@ import {
 
 const drawerWidth = 240;
 const whiteColor = "#E5E1E1";
-const blueColor = "#0E1958";
+const blueColor = "#0C1859";
 const styles = {
   drawer: {
     width: drawerWidth,

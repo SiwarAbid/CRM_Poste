@@ -10,11 +10,16 @@ import "dotenv/config";
 import mysql from "mysql2";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import * as nodemailer from "nodemailer";
+import bcrypt, { hash } from "bcryptjs";
+// import { SMTPClient } from "emailjs";
+// import nodemailer, { Transporter, SentMessageInfo } from "nodemailer";
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST ? process.env.HOST : "localhost";
 
+app.set("view engine", "ejs");
 app.use(json());
 app.use(
   cors({
@@ -93,7 +98,7 @@ app.post("/userLogin", async (request: Request, response: Response) => {
     ): Promise<any> => {
       return new Promise((resolve, reject) => {
         console.log("username: ", user_name, " password: ", password);
-        const sql = `SELECT * FROM users WHERE user_name='${user_name}' AND password='${password}';`;
+        const sql = `SELECT * FROM users WHERE user_name='${user_name}';`;
         db.query(sql, (error: Error, response: any) => {
           if (error) {
             console.log(
@@ -104,17 +109,10 @@ app.post("/userLogin", async (request: Request, response: Response) => {
           } else {
             console.log("Query result:", "SUCCESS");
             if (response[0] != null) {
-              console.log("response: ", response);
-              let secretKey = "PFE2024";
-              if (response[0].status == 0) {
-                secretKey = "AdminPFE2024";
-              } else if (response[0].status == 1) {
-                secretKey = "gestionnairePFE2024";
-              }
-              const token = jwt.sign({ user_name }, secretKey);
-              resolve({ token, response });
+              console.log("response Resolve: ", response);
+              resolve(response);
             } else {
-              console.log("response: ", response);
+              console.log("response Reject: ", response);
 
               console.log("Invalid credentials");
               reject(error);
@@ -123,34 +121,37 @@ app.post("/userLogin", async (request: Request, response: Response) => {
         });
       });
     };
+
     const res = await authTokenClient(user_name, password);
-    console.log("res: ", res);
-    return response.status(200).json({ token: res.token, user: res.response });
+    console.log("res ligne 126: ", res);
+    const passwordOK = await bcrypt.compare(password, res[0].password);
+    console.log("PasswordOK: ", passwordOK);
+    if (passwordOK) {
+      let secretKey = "PFE2024";
+      if (res[0].status == 0) {
+        secretKey = "AdminPFE2024";
+      } else if (res[0].status == 1) {
+        secretKey = "gestionnairePFE2024";
+      }
+      const token = jwt.sign({ username: user_name }, secretKey, {
+        expiresIn: "15m",
+      });
+      console.log("response ligne 139: ", response);
+      console.log("response status ligne 140: ", response.status);
+
+      if (response.status(201)) {
+        return response.json({
+          status: "ok",
+          token: token,
+          user: res[0],
+        });
+      } else {
+        return response.json({ error: "error" });
+      }
+    }
+    res.json({ status: "error", error: "InvAlid Password" });
   } catch (error) {
     return response.status(500).json({ error: "Failed to AuthWithTokenUser " });
-  }
-});
-
-app.get("/verifytoken", async (req: Request, res: Response) => {
-  try {
-    const token = req.headers["authorization"];
-    const status = req?.headers["status"];
-    console.log("Token: ", token);
-    if (!token)
-      return res.status(401).json({ message: "Unauthorized (without token)" });
-    let secretKey = "PFE2024";
-    if (Number(status) === 0) secretKey = "AdminPFE2024";
-    else if (Number(status) === 1) secretKey = "gestionnairePFE2024";
-    jwt.verify(token, secretKey, (err, decoded: any) => {
-      if (err)
-        return res
-          .status(401)
-          .json({ message: "Unauthorized (token uncorrect)" });
-      console.log("VERIFY TOKEN DECODED **", decoded);
-      return res.status(200).json({ result: decoded });
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to Verify_Token " });
   }
 });
 
@@ -220,16 +221,13 @@ app.post("/ajouterclient", async (req: Request, res: Response) => {
 
     const addUser = async (data: ClientType): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const contact: contact = {
-          telephone: Number(data.telephone),
-          email: data.email,
-        };
         const user_name: string = data.nom_prenom.replace(" ", ".");
-        const sqluser = `INSERT INTO users (nom_prenom, user_name, contact, password, status) VALUES (?, ?, ?,?, 2)`;
+        const sqluser = `INSERT INTO users (nom_prenom, user_name, phone,email, password, status) VALUES (?, ?,?, ?,?, 2)`;
         const valuesUser = [
           data.nom_prenom,
           user_name,
-          JSON.stringify(contact),
+          Number(data.telephone),
+          data.email,
           data.password,
         ];
         const PI: PI = {
@@ -632,6 +630,232 @@ WHERE id_user = ?;`;
     return res.status(500).json({ error: "Failed to add user" });
   }
 });
+
+/** send mailling */
+
+// function sendEmail({ recipient_email, OTP }: { recipient_email: string; OTP: string }): Promise<{ message: string }> {
+//   return new Promise((resolve, reject) => {
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       auth: {
+//         user: process.env.MY_EMAIL || 'abidsiwar371@gmail.com',
+//         pass: process.env.MY_PASSWORD || 'Gmail@2024',
+//       },
+//     });
+
+//     const mailConfigs: nodemailer.SendMailOptions = {
+//       from: process.env.MY_EMAIL!,
+//       to: recipient_email,
+//       subject: "KODING 101 PASSWORD RECOVERY",
+//       html: `<!DOCTYPE html>
+// <html lang="en" >
+// <head>
+//   <meta charset="UTF-8">
+//   <title>CodePen - OTP Email Template</title>
+// </head>
+// <body>
+// <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+//   <div style="margin:50px auto;width:70%;padding:20px 0">
+//     <div style="border-bottom:1px solid #eee">
+//       <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Koding 101</a>
+//     </div>
+//     <p style="font-size:1.1em">Hi,</p>
+//     <p>Thank you for choosing Koding 101. Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
+//     <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
+//     <p style="font-size:0.9em;">Regards,<br />Koding 101</p>
+//     <hr style="border:none;border-top:1px solid #eee" />
+//     <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+//       <p>Koding 101 Inc</p>
+//       <p>1600 Amphitheatre Parkway</p>
+//       <p>California</p>
+//     </div>
+//   </div>
+// </div>
+// </body>
+// </html>`,
+//     };
+//     transporter.sendMail(mailConfigs, (error, info) => {
+//       if (error) {
+//         console.log(error);
+//         return reject({ message: `An error has occurred` });
+//       }
+//       return resolve({ message: "Email sent successfully" });
+//     });
+//   });
+// }
+
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const getUserByEmail = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sqlclient = `SELECT * FROM users WHERE status = 2 AND email = '${email}'`;
+        console.log("sql: ", sqlclient);
+        db.query(sqlclient, (error: Error, response: Response) => {
+          if (error) {
+            console.log(
+              "Error executing query (select client by email):",
+              error.message
+            );
+            reject(error);
+          } else {
+            console.log("SUCCESS SQL Get Client ");
+            resolve(response);
+          }
+        });
+      });
+    };
+    const oldUser = await getUserByEmail();
+    console.log("oldUser: ", oldUser);
+    if (!oldUser[0]) {
+      return res.json({ status: "User Not Exists!!" });
+    }
+    const secret = process.env.ACCES_SECRET_TOKEN + oldUser.password;
+    const token = jwt.sign(
+      { email: oldUser.email, id: oldUser.id_user },
+      secret,
+      {
+        expiresIn: "10m",
+      }
+    );
+    const link = `http://localhost:3000/reset-password/${oldUser[0].id_user}/${token}`;
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "abidsiwar371@gmail.com",
+        pass: "psksuhakoaeomrck",
+      },
+    });
+
+    var mailOptions = {
+      from: "abidsiwar371@gmail.com",
+      to: email,
+      subject: "Password Reset",
+      text: link,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        return res.status(500).json({ error: error });
+      } else {
+        console.log("Email sent: " + info.response);
+        return res.status(200).json({ OK: true });
+      }
+    });
+    console.log(link);
+  } catch (error) {}
+});
+
+app.get("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  console.log(req.params);
+  // res.send("DONE");
+  const getUserByEmail = async (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const sqlclient = `SELECT * FROM users WHERE status = 2 AND id_user = '${id}'`;
+      console.log("sql: ", sqlclient);
+      db.query(sqlclient, (error: Error, response: Response) => {
+        if (error) {
+          console.log(
+            "Error executing query (select client by ID):",
+            error.message
+          );
+          reject(error);
+        } else {
+          console.log("SUCCESS SQL Get Client ");
+          resolve(response);
+        }
+      });
+    });
+  };
+  const oldUser = await getUserByEmail();
+  console.log("oldUser: ", oldUser);
+  if (!oldUser[0]) {
+    return res.json({ status: "User Not Exists!!" });
+  }
+  const secret = process.env.ACCES_SECRET_TOKEN + oldUser.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    console.log(verify);
+    // res.send("Verified");
+    res.render("FieldSucces", {
+      email: oldUser[0].email,
+      status: "Not Verified",
+    });
+  } catch (error) {
+    console.log(error);
+    res.render("500_", { email: oldUser[0].email, status: "Not Verified" });
+  }
+});
+
+app.post("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+
+  const getUserByEmail = async (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const sqlclient = `SELECT * FROM users WHERE status = 2 AND id_user = '${id}'`;
+      console.log("sql: ", sqlclient);
+      db.query(sqlclient, (error: Error, response: Response) => {
+        if (error) {
+          console.log(
+            "Error executing query (select client by ID):",
+            error.message
+          );
+          reject(error);
+        } else {
+          console.log("SUCCESS SQL Get Client ");
+          resolve(response);
+        }
+      });
+    });
+  };
+  const oldUser = await getUserByEmail();
+  console.log("oldUser: ", oldUser);
+  if (!oldUser[0]) {
+    return res.json({ status: "User Not Exists!!" });
+  }
+  const secret = process.env.ACCES_SECRET_TOKEN + oldUser.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    console.log("Password: ", password);
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    const updatePassword = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sqlclient = `UPDATE users SET password ='${encryptedPassword}' WHERE id_user = ${id}`;
+        console.log("sql: ", sqlclient);
+        db.query(sqlclient, (error: Error, response: Response) => {
+          if (error) {
+            console.log(
+              "Error executing query (update password client):",
+              error.message
+            );
+            reject(error);
+          } else {
+            console.log("SUCCESS SQL Update Password Client ");
+            resolve(response);
+          }
+        });
+      });
+    };
+    await updatePassword();
+
+    res.render("index", { email: oldUser[0].email, status: "Verified" });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: "Something Went Wrong" });
+  }
+});
+// app.get("/email", (req: Request, res: Response) => {
+//   console.log(process.env.MY_EMAIL);
+// });
+
+// app.post("/send_recovery_email", (req: Request, res: Response) => {
+//   sendEmail(req.body as { recipient_email: string; OTP: string })
+//     .then((response) => res.send(response.message))
+//     .catch((error) => res.status(500).send(error.message));
+// });
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");

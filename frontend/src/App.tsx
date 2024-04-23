@@ -9,8 +9,8 @@ import Token from "./components/StandardComponents/403_";
 import NotFound from "./components/StandardComponents/404_";
 import Connexion from "./Pages/Connexion";
 import AccueilUser from "./Pages/AccueilUser";
-import ProfilClient from "./Pages/ProfilClient";
-import Forgot from "./Pages/Forgot";
+import ProfilClient from "./components/ClientsComponents/SettingProfilClient";
+import FieldMail from "./Pages/ForgotPassword";
 function App() {
   const tokenAdmin = Cookies.get("token0");
   const tokenUser = Cookies.get("token2");
@@ -19,7 +19,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Connexion />} />
-        <Route path="/forgot" element={<Forgot />} />
+        <Route path="/test" element={<FieldMail />} />
+        <Route path="/forgot" element={<FieldMail />} />
         <Route
           path="/LaPosteTunisienne"
           element={

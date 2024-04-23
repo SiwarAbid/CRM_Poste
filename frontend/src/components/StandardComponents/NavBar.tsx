@@ -8,7 +8,7 @@ import AccountIcon from "./AccountIcon";
 
 const NavBar = () => {
   return (
-    <AppBar position="fixed" style={{ backgroundColor: "#0E1958" }}>
+    <AppBar position="fixed" style={{ backgroundColor: "#0C1859" }}>
       <Toolbar>
         <Logo />
         <Typography

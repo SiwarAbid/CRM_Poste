@@ -12,8 +12,10 @@ import {
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Avatar } from "antd";
 import logo from "../assets/imgs/PTT.png";
+import title from "../assets/imgs/LaPoste.png";
 import Tickets from "../components/UserSpaceComponents/Tickets";
-import ProfilClient from "./ProfilClient";
+import ProfilClient from "../components/ClientsComponents/SettingProfilClient";
+import { hover } from "@testing-library/user-event/dist/hover";
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -43,7 +45,7 @@ const links = [
 ];
 const items: MenuItem[] = [
   getItem("Home", "0", <HomeOutlined />),
-  getItem("Profil","7", <ProfileOutlined/>),
+  getItem("Profil", "7", <ProfileOutlined />),
   getItem("Tickets", "sub1", <SendOutlined />, [
     getItem("All", "1"),
     getItem("En cours", "2"),
@@ -57,54 +59,53 @@ const items: MenuItem[] = [
 ];
 
 const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Header style={{ padding: 0, background: "#27708C", display: "flex" }}>
+      <Header
+        style={{
+          padding: 5,
+          background: "#0D1551",
+          display: "flex",
+          height: 80,
+        }}
+      >
         <Avatar
           shape="square"
-          size={53}
-          icon={<img alt="" src={logo} />}
+          size={75}
+          icon={<img alt="logo la poste" src={logo} />}
+          style={{ backgroundColor: "transparent", marginLeft: "35px" }}
+        />
+        <img
+          alt="La Poste Tunisienne"
+          src={title}
           style={{ backgroundColor: "transparent", marginLeft: "10px" }}
         />
-
-        <label
-          style={{ color: "#F2BE22", marginLeft: "5px", marginTop: "-3px" }}
-        >
-          <b>La Poste Tunisienne</b>
-        </label>
       </Header>
 
       <Layout>
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          style={{ background: "#27708C" }}
-        >
-          <div className="demo-logo-vertical"></div>
+        <Sider style={{ background: "#0D1551" }}>
           <Menu
             defaultSelectedKeys={["1"]}
-            mode="inline"
+            // mode="inline"
             items={items}
-            style={{ background: "#27708C", marginTop: "20px" }}
+            style={{
+              background: "#0D1551",
+              marginTop: "0px",
+            }}
+            theme="dark"
           />
         </Sider>
         <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
+          {/* <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>User</Breadcrumb.Item>
             <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
+          </Breadcrumb> */}
           <div
             style={{
               padding: 24,
               minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
+              background: "#F2F2F2",
+              // borderRadius: borderRadiusLG,
             }}
           >
             <ProfilClient />
