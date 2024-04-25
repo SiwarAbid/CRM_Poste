@@ -156,6 +156,21 @@ app.post("/userLogin", async (request: Request, response: Response) => {
 });
 
 // CRUD Client
+const getUserById = async (id: number): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT *FROM users WHERE id_user = ${id}`;
+
+    db.query(sql, (error, results) => {
+      if (error) {
+        console.log("Error executing query (get_user By ID):", error.message);
+        reject(error);
+      } else {
+        console.log("Query result:", "SUCCESS");
+        resolve(results);
+      }
+    });
+  });
+};
 app.get("/clients", async (req: Request, res: Response) => {
   try {
     const getAllUser = async (): Promise<any> => {
@@ -220,6 +235,8 @@ app.post("/ajouterclient", async (req: Request, res: Response) => {
     const data = req.body;
 
     const addUser = async (data: ClientType): Promise<any> => {
+      const encryptedPassword = await bcrypt.hash(data.password, 10);
+
       return new Promise((resolve, reject) => {
         const user_name: string = data.nom_prenom.replace(" ", ".");
         const sqluser = `INSERT INTO users (nom_prenom, user_name, phone,email, password, status) VALUES (?, ?,?, ?,?, 2)`;
@@ -228,7 +245,7 @@ app.post("/ajouterclient", async (req: Request, res: Response) => {
           user_name,
           Number(data.telephone),
           data.email,
-          data.password,
+          encryptedPassword,
         ];
         const PI: PI = {
           type: data.PI_type,
@@ -372,6 +389,17 @@ app.put("/modifierclient", async (req: Request, res: Response) => {
   }
 });
 
+app.get("/getProfil/:id", async (req: Request, res: Response) => {
+  try {
+    const id_user = req.params.id;
+    console.log("id_user: ", id_user);
+    const result = await getUserById(Number(id_user));
+    console.log("res: ", result);
+    return res.status(200).json({ user: result[0] });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get profil" });
+  }
+});
 // CRUD Gestionnaire
 type gestionnaire = {
   matricule_gestionnaire: string;
@@ -633,57 +661,6 @@ WHERE id_user = ?;`;
 
 /** send mailling */
 
-// function sendEmail({ recipient_email, OTP }: { recipient_email: string; OTP: string }): Promise<{ message: string }> {
-//   return new Promise((resolve, reject) => {
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: process.env.MY_EMAIL || 'abidsiwar371@gmail.com',
-//         pass: process.env.MY_PASSWORD || 'Gmail@2024',
-//       },
-//     });
-
-//     const mailConfigs: nodemailer.SendMailOptions = {
-//       from: process.env.MY_EMAIL!,
-//       to: recipient_email,
-//       subject: "KODING 101 PASSWORD RECOVERY",
-//       html: `<!DOCTYPE html>
-// <html lang="en" >
-// <head>
-//   <meta charset="UTF-8">
-//   <title>CodePen - OTP Email Template</title>
-// </head>
-// <body>
-// <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-//   <div style="margin:50px auto;width:70%;padding:20px 0">
-//     <div style="border-bottom:1px solid #eee">
-//       <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Koding 101</a>
-//     </div>
-//     <p style="font-size:1.1em">Hi,</p>
-//     <p>Thank you for choosing Koding 101. Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
-//     <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
-//     <p style="font-size:0.9em;">Regards,<br />Koding 101</p>
-//     <hr style="border:none;border-top:1px solid #eee" />
-//     <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-//       <p>Koding 101 Inc</p>
-//       <p>1600 Amphitheatre Parkway</p>
-//       <p>California</p>
-//     </div>
-//   </div>
-// </div>
-// </body>
-// </html>`,
-//     };
-//     transporter.sendMail(mailConfigs, (error, info) => {
-//       if (error) {
-//         console.log(error);
-//         return reject({ message: `An error has occurred` });
-//       }
-//       return resolve({ message: "Email sent successfully" });
-//     });
-//   });
-// }
-
 app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {
@@ -779,7 +756,7 @@ app.get("/reset-password/:id/:token", async (req, res) => {
     const verify = jwt.verify(token, secret);
     console.log(verify);
     // res.send("Verified");
-    res.render("FieldSucces", {
+    res.render("index", {
       email: oldUser[0].email,
       status: "Not Verified",
     });

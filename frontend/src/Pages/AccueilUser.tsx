@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DesktopOutlined,
   FileOutlined,
@@ -14,8 +14,10 @@ import { Breadcrumb, Layout, Menu, theme, Avatar } from "antd";
 import logo from "../assets/imgs/PTT.png";
 import title from "../assets/imgs/LaPoste.png";
 import Tickets from "../components/UserSpaceComponents/Tickets";
-import ProfilClient from "../components/ClientsComponents/SettingProfilClient";
+import ProfilClient from "../components/ClientsComponents/ProfilClient";
 import { hover } from "@testing-library/user-event/dist/hover";
+import { useParams } from "react-router-dom";
+import Account from "../components/ClientsComponents/Account";
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -59,6 +61,50 @@ const items: MenuItem[] = [
 ];
 
 const App: React.FC = () => {
+  const { id } = useParams(); // Utilisation de useParams pour récupérer l'ID de l'URL
+  console.log("id_user", id);
+  const [dataUser, setDataUser] = useState<{
+    adresse: string;
+    email: string;
+    id_user: number;
+    nom_prenom: string;
+    password: string;
+    phone: number;
+    status: number;
+    user_name: string;
+  }>({
+    adresse: "",
+    email: "",
+    id_user: 0,
+    nom_prenom: "",
+    password: "",
+    phone: 0,
+    status: -1,
+    user_name: "",
+  });
+  useEffect(() => {
+    fetch(`http://localhost:3000/getProfil/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          console.log("Res: ", res);
+          console.log("Success"); //Ajoutez le console.log pour indiquer le succès
+          return res.json();
+        } else {
+          throw new Error("Erreur lors de la requête"); // Gérez les erreurs ici si nécessaire
+        }
+      })
+      .then((data) => {
+        console.log("userRegister: ", data);
+        setDataUser(data.user);
+      });
+  }, [id]);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -80,12 +126,19 @@ const App: React.FC = () => {
           src={title}
           style={{ backgroundColor: "transparent", marginLeft: "10px" }}
         />
+        <Account
+          user_name={dataUser.nom_prenom}
+          image=""
+          user_adresse={dataUser.adresse}
+          user_email={dataUser.email}
+          user_phone={dataUser.phone}
+        />
       </Header>
 
       <Layout>
         <Sider style={{ background: "#0D1551" }}>
           <Menu
-            defaultSelectedKeys={["1"]}
+            defaultSelectedKeys={["7"]}
             // mode="inline"
             items={items}
             style={{
@@ -108,7 +161,7 @@ const App: React.FC = () => {
               // borderRadius: borderRadiusLG,
             }}
           >
-            <ProfilClient />
+            <ProfilClient name_user={dataUser.nom_prenom} />
           </div>
         </Content>
         {/* <Footer style={{ textAlign: "center" }}>

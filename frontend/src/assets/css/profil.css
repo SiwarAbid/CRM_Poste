@@ -1,0 +1,134 @@
+.panel-group {
+  width: 350px;
+  margin-top: 70px;
+  margin-left: 280px;
+  max-width: 100%;
+}
+
+.panel-heading {
+  background-color: transparent !important;
+}
+
+.card {
+  margin-bottom: 20px;
+  margin-left: 70px;
+  width: 900px;
+  height: 100vh;
+}
+
+.card-header {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  background: #0d1551;
+  padding: 30px 15px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.card-header-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 4em;
+  width: 4em;
+}
+
+.card-header-menu:after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  content: "";
+  border-left: 2em solid transparent;
+  border-bottom: 2em solid transparent;
+  border-right: 2em solid #f9c42a;
+  border-top: 2em solid #f9c42a;
+  border-top-right-radius: 4px;
+}
+
+.card-header-menu i {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  color: #fff;
+  z-index: 1;
+}
+
+.card-header-headshot {
+  height: 6em;
+  width: 6em;
+  border-radius: 50%;
+  border: 2px solid #f9c42a;
+  background-image: url("../imgs/user.png");
+  background-size: cover;
+  background-position: center center;
+  box-shadow: 1px 3px 3px #3e4142;
+}
+
+.card-content-member {
+  position: relative;
+  background-color: #fff;
+  padding: 1em;
+  box-shadow: 0 2px 2px rgba(62, 65, 66, 0.15);
+  height: 500px;
+}
+
+.card-content-member {
+  text-align: center;
+}
+
+.SelectSectionUser {
+  appearance: none; /* Masquer l'apparence par défaut du select */
+  border-radius: 10px; /* Arrondir les coins */
+  margin-top: 9px;
+  background-color: #f9c42a;
+  color: #fff;
+  border-color: #fff;
+  padding: 10px 20px 10px 40px;
+  margin: 1px 5px 1px -5px;
+  width: 100%;
+  text-align: center;
+  font-family: raleway;
+  font-weight: 300;
+  max-width: 100%;
+}
+
+.SelectSectionUser:hover {
+  background-color: #0d1551;
+}
+
+.cacher {
+  display: none;
+}
+.listeLiens {
+  list-style-type: none;
+  padding: 0;
+}
+
+.listeLiens li {
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.listeLiens li a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.listeLiens li:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-a {
+  appearance: none;
+  color: #fff;
+  text-align: center;
+  font-family: raleway;
+  font-weight: 300;
+}

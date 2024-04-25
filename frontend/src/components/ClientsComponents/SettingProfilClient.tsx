@@ -1,5 +1,5 @@
 import React from "react";
-import "../assets/css/Profil_user.css";
+import "../../assets/css/Profil_user.css";
 function ProfilClient() {
   return (
     <div className="container-xl px-4 mt-4">
