@@ -7,8 +7,7 @@
 body {
   font-family: Roboto, -apple-system, "Helvetica Neue", "Segoe UI", Arial,
     sans-serif;
-    /* background-image: url("../imgs/bgPoste.png"); */
-
+  /* background-image: url("../imgs/bgPoste.png"); */
 }
 
 .forms-section {
@@ -397,4 +396,11 @@ fieldset:not(:first-of-type) {
   margin: 100px auto;
   text-align: center;
   position: relative;
+}
+
+.alert {
+  background-color: red;
+  padding: 10px 10px 10px 10px;
+  color: #fff;
+  box-shadow: #fefefe;
 }

@@ -9,7 +9,7 @@ import Token from "./components/StandardComponents/403_";
 import NotFound from "./components/StandardComponents/404_";
 import Connexion from "./Pages/Connexion";
 import AccueilUser from "./Pages/AccueilUser";
-import ProfilClient from "./components/ClientsComponents/ProfilClient";
+import ProfilClient from "./components/ClientsComponents/ModalPI";
 import FieldMail from "./Pages/ForgotPassword";
 function App() {
   const tokenAdmin = Cookies.get("token0");
@@ -19,7 +19,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Connexion />} />
-        {/* <Route path="/test" element={<ProfilClient />} /> */}
         <Route path="/forgot" element={<FieldMail />} />
         <Route
           path="/LaPosteTunisienne/:id"
@@ -33,6 +32,7 @@ function App() {
             tokenUser === undefined || null ? <Token /> : <ProfilClient />
           }
         /> */}
+        {/* <Route path="/test" element={<ProfilClient />} /> */}
         <Route
           path="/accueil"
           element={tokenAdmin === undefined || null ? <Token /> : <Accueil />}

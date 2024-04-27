@@ -15,6 +15,7 @@ import logo from "../assets/imgs/PTT.png";
 import title from "../assets/imgs/LaPoste.png";
 import Tickets from "../components/UserSpaceComponents/Tickets";
 import ProfilClient from "../components/ClientsComponents/ProfilClient";
+import SettingProfil from "../components/ClientsComponents/SettingProfilClient";
 import { hover } from "@testing-library/user-event/dist/hover";
 import { useParams } from "react-router-dom";
 import Account from "../components/ClientsComponents/Account";
@@ -59,7 +60,17 @@ const items: MenuItem[] = [
   //   getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   //   getItem('Files', '9', <FileOutlined />),
 ];
-
+interface DetailsUser {
+  PI: {
+    typePI: string;
+    numPI: string;
+    datePI: string;
+    image: {
+      recto: string;
+      verso: string;
+    };
+  };
+}
 const App: React.FC = () => {
   const { id } = useParams(); // Utilisation de useParams pour récupérer l'ID de l'URL
   console.log("id_user", id);
@@ -72,6 +83,11 @@ const App: React.FC = () => {
     phone: number;
     status: number;
     user_name: string;
+    civil: string;
+    lieu_birth: string;
+    date_birth: string;
+    type_pi: string;
+    num_pi: number;
   }>({
     adresse: "",
     email: "",
@@ -81,7 +97,13 @@ const App: React.FC = () => {
     phone: 0,
     status: -1,
     user_name: "",
+    civil: "M",
+    lieu_birth: "",
+    date_birth: "",
+    type_pi: "CIN",
+    num_pi: 0,
   });
+
   useEffect(() => {
     fetch(`http://localhost:3000/getProfil/${id}`, {
       method: "GET",
@@ -101,10 +123,12 @@ const App: React.FC = () => {
         }
       })
       .then((data) => {
-        console.log("userRegister: ", data);
+        console.log("data***** Ligne 117: ", data);
         setDataUser(data.user);
       });
   }, [id]);
+  console.log("data user***** Ligne 121: ", dataUser);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -139,7 +163,6 @@ const App: React.FC = () => {
         <Sider style={{ background: "#0D1551" }}>
           <Menu
             defaultSelectedKeys={["7"]}
-            // mode="inline"
             items={items}
             style={{
               background: "#0D1551",
@@ -149,24 +172,31 @@ const App: React.FC = () => {
           />
         </Sider>
         <Content style={{ margin: "0 16px" }}>
-          {/* <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb> */}
           <div
             style={{
               padding: 24,
               minHeight: 360,
               background: "#F2F2F2",
-              // borderRadius: borderRadiusLG,
             }}
           >
             <ProfilClient name_user={dataUser.nom_prenom} />
+            <SettingProfil
+              username={dataUser.user_name}
+              first_name={dataUser.nom_prenom}
+              last_name={dataUser.nom_prenom}
+              prof=""
+              adresse=""
+              user_email={dataUser.email}
+              user_phone={dataUser.phone}
+              date_birth={dataUser.date_birth}
+              lieu_birth={dataUser.lieu_birth}
+              status_civil=""
+              cat_prof=""
+              id={dataUser.id_user}
+              // details_user={dataUser.details_user}
+            />
           </div>
         </Content>
-        {/* <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer> */}
       </Layout>
     </Layout>
   );

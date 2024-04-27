@@ -12,12 +12,22 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import * as nodemailer from "nodemailer";
 import bcrypt, { hash } from "bcryptjs";
-// import { SMTPClient } from "emailjs";
-// import nodemailer, { Transporter, SentMessageInfo } from "nodemailer";
+import multer from "multer";
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST ? process.env.HOST : "localhost";
+const upload = multer({ dest: "uploads/" });
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/"); // Dossier de destination des fichiers téléchargés
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, file.originalname); // Nom du fichier téléchargé
+//   },
+// });
+
+// const upload = multer({ storage: storage });
 
 app.set("view engine", "ejs");
 app.use(json());
@@ -102,7 +112,7 @@ app.post("/userLogin", async (request: Request, response: Response) => {
         db.query(sql, (error: Error, response: any) => {
           if (error) {
             console.log(
-              "Error executing query (authTokenClient):",
+              "Error executing query (authTokenClient: Ligne 105):",
               error.message
             );
             reject(error);
@@ -123,7 +133,7 @@ app.post("/userLogin", async (request: Request, response: Response) => {
     };
 
     const res = await authTokenClient(user_name, password);
-    console.log("res ligne 126: ", res);
+    console.log("res ligne 136: ", res);
     const passwordOK = await bcrypt.compare(password, res[0].password);
     console.log("PasswordOK: ", passwordOK);
     if (passwordOK) {
@@ -136,8 +146,8 @@ app.post("/userLogin", async (request: Request, response: Response) => {
       const token = jwt.sign({ username: user_name }, secretKey, {
         expiresIn: "15m",
       });
-      console.log("response ligne 139: ", response);
-      console.log("response status ligne 140: ", response.status);
+      console.log("response ligne 149: ", response);
+      console.log("response status ligne 150: ", response.status);
 
       if (response.status(201)) {
         return response.json({
@@ -398,6 +408,186 @@ app.get("/getProfil/:id", async (req: Request, res: Response) => {
     return res.status(200).json({ user: result[0] });
   } catch (error) {
     return res.status(500).json({ error: "Failed to get profil" });
+  }
+});
+type PIUser = {
+  id: number;
+  type: string;
+  num: string;
+  date: string;
+  image: {
+    recto: string;
+    verso: string;
+  };
+};
+app.post("/updatePI/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const id_user = Number(id);
+    console.log("ID BACKEND: ", id_user);
+    const data = req.body;
+    console.log("DATA BACKEND: ", data);
+    const updateUser = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE client SET PI =? WHERE id_user = ?`;
+        const PI = {
+          typePI: data.typePI,
+          numPI: data.numPI,
+          datePI: data.datePI,
+          imagePI: {
+            recto: data.imgPI_recto,
+            verso: data.imgPI_verso,
+          },
+        };
+        const values = [JSON.stringify(PI), id];
+
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log(
+              "Error executing query (update_user_pi):",
+              error.message
+            );
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS updated user pi");
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await updateUser();
+    return res.status(200).json({ message: "UPDATED USER PI", result: result });
+  } catch (error) {
+    return res.status(500).json({ errorMessage: "Failed to update user pi" });
+  }
+});
+
+app.post("/updateUserInfo/:id", async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    const id = req.params.id;
+    console.log("DATA BACKEND: ", req.body);
+    const updateUser = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE client SET civil = ?, brith = ?, info_sup = ? WHERE id_user = ?`;
+
+        const birth = {
+          date_birth: data.date_birth,
+          lieu_birth: data.lieu_birth,
+        };
+        const info = {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          prof: data.prof,
+          cat_prof: data.cat_prof,
+        };
+        const values = [
+          data.civil,
+          JSON.stringify(birth),
+          JSON.stringify(info),
+          id,
+        ];
+
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log("Error executing query (update_user ):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS updated user ");
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await updateUser();
+    return res.status(200).json({ message: "UPDATED USER ", result: result });
+  } catch (error) {
+    return res.status(500).json({ errorMessage: "Failed to update user " });
+  }
+});
+
+app.post("/updateRS/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+    console.log("DATA BACKEND: ", data);
+    const updateUser = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE client SET info_sup = JSON_SET(info_sup, '$.reseaux_sociaux', ?) WHERE id_user = ?`;
+        const RS = {
+          facebook: data.fcb,
+          instagramme: data.insta,
+          whatsapp: data.whatsapp,
+        };
+
+        const values = [JSON.stringify(RS), id];
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log(
+              "Error executing query (update_user_RS):",
+              error.message
+            );
+            reject(error);
+          } else {
+            console.log(
+              "Query result:",
+              "SUCCESS updated user reseaux sociaux"
+            );
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await updateUser();
+    return res.status(200).json({ message: "UPDATED USER RS", result: result });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ errorMessage: "Failed to update user reseaux sociaux" });
+  }
+});
+app.post("/updateUser/:id", async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    const id = req.params.id;
+    console.log("DATA BACKEND: ", req.body);
+    const updateUser = async (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE users SET user_name = ?, adresse = ?, email = ? , phone = ? WHERE id_user = ?`;
+
+        const birth = {
+          date_birth: data.date_birth,
+          lieu_birth: data.lieu_birth,
+        };
+        const info = {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          prof: data.prof,
+          cat_prof: data.cat_prof,
+        };
+        const values = [
+          data.username,
+          data.adresse,
+          data.user_email,
+          data.user_phone,
+          id,
+        ];
+
+        db.query(sql, values, (error, results, fields) => {
+          if (error) {
+            console.log("Error executing query (update_user ):", error.message);
+            reject(error);
+          } else {
+            console.log("Query result:", "SUCCESS updated user ");
+            resolve(results);
+          }
+        });
+      });
+    };
+    const result = await updateUser();
+    return res.status(200).json({ message: "UPDATED USER ", result: result });
+  } catch (error) {
+    return res.status(500).json({ errorMessage: "Failed to update user " });
   }
 });
 // CRUD Gestionnaire
