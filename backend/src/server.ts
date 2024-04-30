@@ -12,22 +12,10 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import * as nodemailer from "nodemailer";
 import bcrypt, { hash } from "bcryptjs";
-import multer from "multer";
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST ? process.env.HOST : "localhost";
-const upload = multer({ dest: "uploads/" });
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/"); // Dossier de destination des fichiers téléchargés
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname); // Nom du fichier téléchargé
-//   },
-// });
-
-// const upload = multer({ storage: storage });
 
 app.set("view engine", "ejs");
 app.use(json());
@@ -620,7 +608,6 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
             );
             reject(erroruser);
           } else {
-            // console.log("response: ", response);
             console.log("Query result (SELECT User): ", "SUCCESS");
             const responseUser = response;
             db.query(
@@ -649,7 +636,6 @@ app.get("/gestionnaires", async (req: Request, res: Response) => {
       });
     };
     const result = await getAllUser();
-    // console.log("response: ", result);
 
     return res
       .status(200)
@@ -728,8 +714,7 @@ app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
 app.delete("/supprimerGestionnaires", async (req, res) => {
   try {
     const idsToDelete = req.body;
-    // console.log("req: ", req);
-    // console.log("idsToDelete: ", idsToDelete);
+
     const deleteUser = async (id: number): Promise<any> => {
       return new Promise((resolve, reject) => {
         const sqlgestionnaire = `DELETE FROM gestionnaire WHERE id_user = ${id}`;
@@ -917,7 +902,6 @@ app.post("/forgot-password", async (req, res) => {
 app.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
   console.log(req.params);
-  // res.send("DONE");
   const getUserByEmail = async (): Promise<any> => {
     return new Promise((resolve, reject) => {
       const sqlclient = `SELECT * FROM users WHERE status = 2 AND id_user = '${id}'`;
@@ -945,7 +929,6 @@ app.get("/reset-password/:id/:token", async (req, res) => {
   try {
     const verify = jwt.verify(token, secret);
     console.log(verify);
-    // res.send("Verified");
     res.render("index", {
       email: oldUser[0].email,
       status: "Not Verified",
@@ -1014,15 +997,6 @@ app.post("/reset-password/:id/:token", async (req, res) => {
     res.json({ status: "Something Went Wrong" });
   }
 });
-// app.get("/email", (req: Request, res: Response) => {
-//   console.log(process.env.MY_EMAIL);
-// });
-
-// app.post("/send_recovery_email", (req: Request, res: Response) => {
-//   sendEmail(req.body as { recipient_email: string; OTP: string })
-//     .then((response) => res.send(response.message))
-//     .catch((error) => res.status(500).send(error.message));
-// });
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
