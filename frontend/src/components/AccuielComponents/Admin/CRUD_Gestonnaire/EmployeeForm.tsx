@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../../../assets/css/EmployeeForm.css";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
-import DeleteBloc from "./FormDelete";
+import DeleteBloc from "../../FormDelete";
 import FormBloc from "./FormAdd";
 import {
   Gestionnaire,

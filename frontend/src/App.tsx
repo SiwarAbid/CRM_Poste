@@ -9,8 +9,12 @@ import Token from "./components/StandardComponents/403_";
 import NotFound from "./components/StandardComponents/404_";
 import Connexion from "./Pages/Connexion";
 import AccueilUser from "./Pages/AccueilUser";
-import ProfilClient from "./components/ClientsComponents/ModalPI";
+import ProfilClient from "./components/AccuielComponents/Gestionnaire/Clients";
+// import ProfilClient from "./components/ClientsComponents/ImporterCompte";
 import FieldMail from "./Pages/ForgotPassword";
+import GestionnaireSection from "./components/AccuielComponents/Admin/CRUD_Gestonnaire/Gestionnaire";
+import Suivi from "./components/ClientsComponents/Suivi";
+import EnvoiColis from "./components/ClientsComponents/EnvoiColis";
 function App() {
   const tokenAdmin = Cookies.get("token0");
   const tokenUser = Cookies.get("token2");
@@ -33,9 +37,34 @@ function App() {
           }
         /> */}
         {/* <Route path="/test" element={<ProfilClient />} /> */}
+        {/* <Route
+          path="/test"
+          element={
+            <Suivi
+              // label={"The mandate number: "}
+              // name={"num_mandat"}
+              // suivi={"Mandat"}
+              label={"The package number: "}
+              name={"num_colis"}
+              suivi={"Colis"}
+              title={"Package"}
+            />
+          }
+        /> */}
+        <Route path="/test" element={<EnvoiColis />} />
         <Route
           path="/accueil"
           element={tokenAdmin === undefined || null ? <Token /> : <Accueil />}
+        />
+        <Route
+          path="/gestionnaire"
+          element={
+            tokenAdmin === undefined || null ? (
+              <Token />
+            ) : (
+              <GestionnaireSection />
+            )
+          }
         />
         <Route
           path="/vente"

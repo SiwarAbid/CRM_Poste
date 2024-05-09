@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import "../../../../assets/css/EmployeeForm.css";
+import "../../assets/css/EmployeeForm.css";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
+import { message } from "antd";
+
 /** handleClose always true !! */
 const DeleteBloc: React.FC<{
   ids: number[];
@@ -11,8 +13,21 @@ const DeleteBloc: React.FC<{
   };
 }> = ({ ids, elements }) => {
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const [success, setSucces] = useState<boolean>(false);
+  // const [success, setSucces] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
+  const success = () => {
+    messageApi.open({
+      type: "success",
+      content: "success",
+    });
+  };
+  const error = () => {
+    messageApi.open({
+      type: "error",
+      content: "error",
+    });
+  };
   const handleClose = () => {
     console.log("HandleClose !! ", elements.open);
     elements.setOpen(false);
@@ -34,13 +49,16 @@ const DeleteBloc: React.FC<{
         );
         console.log("response: ", response);
         if (response.ok) {
+          success();
           handleClose();
-          setSucces(true);
+          // setSucces(true);
         } else {
+          error();
           throw new Error("Erreur lors de la soumission du formulaire");
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        error();
+        console.error(err);
       }
     };
 
@@ -66,6 +84,7 @@ const DeleteBloc: React.FC<{
         aria-describedby="server-modal-description"
         layout="center"
       >
+        {contextHolder}
         <div id="deleteEmployeeModal" className="modal fade">
           <div className="modal-dialog">
             <div className="modal-content">

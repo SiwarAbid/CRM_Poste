@@ -44,10 +44,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 interface propsModalProfil {
   isOpen: boolean;
   handleClose: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  user_name: string;
-  user_email: string;
-  user_phone: number;
-  user_adresse: string;
+  user_name: string | undefined;
+  user_email: string | undefined;
+  user_phone: number | undefined;
+  user_adresse: string | undefined;
 }
 const ModalProfil: React.FC<propsModalProfil> = ({
   isOpen,
@@ -102,7 +102,7 @@ const ModalProfil: React.FC<propsModalProfil> = ({
               <p className="front__text-para">
                 <MailOutlined /> <p style={{ marginLeft: 10 }}>{user_email}</p>
               </p>
-              <a href="/" style={{marginLeft: 100, paddingTop: 15}}>
+              <a href="/" style={{ marginLeft: 100, paddingTop: 15 }}>
                 <span className="front__text-hover">Disconnected</span>
               </a>
             </div>
@@ -113,11 +113,11 @@ const ModalProfil: React.FC<propsModalProfil> = ({
   );
 };
 export default function BadgeAvatars(props: {
-  user_name: string;
-  image: string;
-  user_email: string;
-  user_phone: number;
-  user_adresse: string;
+  user_name: string | undefined;
+  image: string | undefined;
+  user_email: string | undefined;
+  user_phone: number | undefined;
+  user_adresse: string | undefined;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -135,8 +135,8 @@ export default function BadgeAvatars(props: {
             style={{ marginBottom: 20 }}
           >
             <Avatar
-              alt={props.user_name}
-              src={props.image}
+              alt={props?.user_name}
+              src={props?.image}
               style={{ marginTop: 10 }}
             />
           </StyledBadge>
@@ -145,10 +145,10 @@ export default function BadgeAvatars(props: {
       <ModalProfil
         isOpen={isOpen}
         handleClose={handleClick}
-        user_name={props.user_name}
-        user_adresse={props.user_adresse}
-        user_email={props.user_email}
-        user_phone={props.user_phone}
+        user_name={props?.user_name}
+        user_adresse={props?.user_adresse}
+        user_email={props?.user_email}
+        user_phone={props?.user_phone}
       />
     </div>
   );

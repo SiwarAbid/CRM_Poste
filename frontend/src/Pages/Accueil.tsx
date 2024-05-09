@@ -69,8 +69,8 @@ const listItem = [
   "Inscription",
 ];
 const links = [
-  "/accueil",
-  "#gestionnaire",
+  "",
+  "",
   "accueil/parametre",
   "/",
   "#",
@@ -95,7 +95,7 @@ const DrawerMenu: React.FC<{ onSelect: (selectedItem: string) => void }> = ({
     >
       <List>
         {listItem.map((item, index) => (
-          <ListItemButton component="a" href={links[index]} key={index}>
+          <ListItemButton component="a" key={index}>
             <ListItem key={index} onClick={() => handleItemClick(item, index)}>
               <ListItemText
                 primary={item}
@@ -206,6 +206,7 @@ const NavBar = () => {
 };
 
 const MainContent: React.FC<{ selectedItem: string }> = ({ selectedItem }) => {
+  console.log("selectItem: ", selectedItem)
   return (
     <div>
       {selectedItem === "Inscription" ? (

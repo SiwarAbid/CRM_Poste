@@ -83,10 +83,10 @@ const SettingInfoUser: React.FC<PropsProps> = (props) => {
       [name]: name === "user_phone" ? parseInt(value, 10) : value,
     });
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log("handleSubmit");
     e.preventDefault();
-    fetch(`http://localhost:3000/updateUserInfo/${props.props.id}`, {
+    await fetch(`http://localhost:3000/updateUserInfo/${props.props.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
