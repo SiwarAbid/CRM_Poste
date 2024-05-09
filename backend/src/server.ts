@@ -173,13 +173,13 @@ app.get("/clients", async (req: Request, res: Response) => {
   try {
     const getAllUser = async (): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM users WHERE status = 'client';`;
+        const sql = `SELECT * FROM users WHERE status = 2;`;
         db.query(sql, (error: Error, response: Response) => {
           if (error) {
             console.log("Error executing query (getAll_user):", error.message);
             reject(error);
           } else {
-            console.log("Query result:", "SUCCESS");
+            console.log("Query result:", "SUCCESS Get All CLients");
             resolve(response);
           }
         });
@@ -195,6 +195,8 @@ type user = {
   id: number;
   nom_prenom: string;
   user_name: string;
+  phone: string;
+  email: string;
   contact: contact;
   adresse: adresse;
   password: string;
@@ -358,13 +360,14 @@ app.put("/modifierclient", async (req: Request, res: Response) => {
 
     const updateUser = async (data: user): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, contact = ?, adresse = ?, password = ? WHERE status = 'client' AND id_user = ?`;
-
+        const sql = `UPDATE users SET nom_prenom = ?, user_name = ?, email = ?, phone = ?, adresse = ?, password = ? WHERE status = 2 AND id_user = ?`;
+        console.log(data);
         const values = [
           data.nom_prenom,
           data.user_name,
-          JSON.stringify(data.contact),
-          JSON.stringify(data.adresse),
+          data.email,
+          data.phone,
+          data.adresse,
           data.password,
           data.id,
         ];
@@ -392,6 +395,34 @@ app.get("/getProfil/:id", async (req: Request, res: Response) => {
     const id_user = req.params.id;
     console.log("id_user: ", id_user);
     const result = await getUserById(Number(id_user));
+    console.log("res: ", result);
+    return res.status(200).json({ user: result[0] });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get profil" });
+  }
+});
+
+const getClientById = async (id: number): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT *FROM client WHERE id_user = ${id}`;
+
+    db.query(sql, (error, results) => {
+      if (error) {
+        console.log("Error executing query (get_user By ID):", error.message);
+        reject(error);
+      } else {
+        console.log("Query result:", "SUCCESS");
+        resolve(results);
+      }
+    });
+  });
+};
+
+app.get("/getProfilClient/:id", async (req: Request, res: Response) => {
+  try {
+    const id_user = req.params.id;
+    console.log("id_user: ", id_user);
+    const result = await getClientById(Number(id_user));
     console.log("res: ", result);
     return res.status(200).json({ user: result[0] });
   } catch (error) {
@@ -651,17 +682,18 @@ app.post("/ajoutergestionnaire", async (req: Request, res: Response) => {
     console.log("data: ", data);
     const addUser = async (data: gestionnaire): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const contact: contact = {
-          telephone: Number(data.phone),
-          email: data.email,
-        };
+        // const contact: contact = {
+        //   telephone: Number(data.phone),
+        //   email:
+        // };
         const user_name: string = data.nom_prenom.replace(" ", ".");
-        const sqluser = `INSERT INTO users (nom_prenom, user_name, contact, status)
-        VALUES (?, ?, ?, 1);`;
+        const sqluser = `INSERT INTO users (nom_prenom, user_name, email, phone, status)
+        VALUES (?, ?, ?,?, 1);`;
         const values_user = [
           data.nom_prenom,
           user_name,
-          JSON.stringify(contact),
+          data.email,
+          Number(data.phone),
         ];
         const recpId = `SET @last_id = LAST_INSERT_ID();`;
         const sql = `INSERT INTO gestionnaire (matricule_gestionnaire, id_user, post, bureau_postal, acces)
@@ -768,28 +800,16 @@ app.put("/modifiergestionnaire", async (req: Request, res: Response) => {
 
     const updateUser = async (data: gestionnaire): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const contact: contact = {
-          telephone: Number(data.phone),
-          email: data.email,
-        };
         const user_name: string = data.nom_prenom.replace(" ", ".");
-        const sqlUser = `UPDATE users 
-        SET nom_prenom = ?, 
-            user_name = ?, 
-            contact = ? 
-        WHERE id_user = ?;`;
+        const sqlUser = `UPDATE users SET nom_prenom = ?, user_name = ?, phone = ?, email = ? WHERE id_user = ?;`;
         const valuesUser = [
           data.nom_prenom,
           user_name,
-          JSON.stringify(contact),
+          Number(data.phone),
+          data.email,
           data.id_user,
         ];
-        const sqlGestionnaire = `UPDATE gestionnaire 
-SET matricule_gestionnaire = ?, 
-    post = ?, 
-    bureau_postal = ?, 
-    acces = ? 
-WHERE id_user = ?;`;
+        const sqlGestionnaire = `UPDATE gestionnaire SET matricule_gestionnaire = ?, post = ?, bureau_postal = ?, acces = ? WHERE id_user = ?;`;
         const valuesGestionnaire = [
           data.matricule_gestionnaire,
           data.post,
@@ -841,7 +861,8 @@ app.post("/forgot-password", async (req, res) => {
   try {
     const getUserByEmail = async (): Promise<any> => {
       return new Promise((resolve, reject) => {
-        const sqlclient = `SELECT * FROM users WHERE status = 2 AND email = '${email}'`;
+        //status = 2 AND
+        const sqlclient = `SELECT * FROM users WHERE  email = '${email}'`;
         console.log("sql: ", sqlclient);
         db.query(sqlclient, (error: Error, response: Response) => {
           if (error) {
@@ -904,7 +925,8 @@ app.get("/reset-password/:id/:token", async (req, res) => {
   console.log(req.params);
   const getUserByEmail = async (): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const sqlclient = `SELECT * FROM users WHERE status = 2 AND id_user = '${id}'`;
+      //status = 2 AND
+      const sqlclient = `SELECT * FROM users WHERE  id_user = '${id}'`;
       console.log("sql: ", sqlclient);
       db.query(sqlclient, (error: Error, response: Response) => {
         if (error) {
@@ -945,7 +967,8 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
   const getUserByEmail = async (): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const sqlclient = `SELECT * FROM users WHERE status = 2 AND id_user = '${id}'`;
+      //status = 2 AND
+      const sqlclient = `SELECT * FROM users WHERE  id_user = '${id}'`;
       console.log("sql: ", sqlclient);
       db.query(sqlclient, (error: Error, response: Response) => {
         if (error) {
@@ -998,6 +1021,11 @@ app.post("/reset-password/:id/:token", async (req, res) => {
   }
 });
 
+// app.get("/getMandat/:id", (req: Request, res: Response) => {
+//   const id = req.params.id;
+//   console.log("id mandat: ", id);
+//   res.send("test success");
+// });
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
