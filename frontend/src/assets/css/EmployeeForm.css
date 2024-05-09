@@ -1,0 +1,70 @@
+.modal .modal-dialog {
+  max-width: 400px; /* Largeur maximale de la boîte de dialogue modale */
+}
+
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+  padding: 20px 60px; /* Espacement intérieur du contenu de la modale */
+}
+
+.modal .modal-content {
+  border-radius: 3px; /* Bord arrondi du contenu de la modale */
+}
+
+.modal .modal-footer {
+  border-radius: 0 0 3px 3px; /* Bord arrondi du pied de la modale */
+}
+
+.modal .modal-title {
+  display: inline-block; /* Affichage en ligne du titre de la modale */
+}
+
+.modal .form-control {
+  border-radius: 2px; /* Bord arrondi des champs de formulaire */
+  box-shadow: none;
+  border-color: #dddddd;
+}
+
+.modal textarea.form-control {
+  resize: vertical; /* Redimensionnement vertical uniquement pour les zones de texte */
+}
+
+.modal .btn {
+  border-radius: 2px; /* Bord arrondi des boutons de la modale */
+  min-width: 100px; /* Largeur minimale des boutons */
+}
+
+.modal form label {
+  font-weight: normal; /* Style de police normal pour les étiquettes de formulaire */
+}
+/*** FormAddEdit ***/
+
+.form-group {
+  margin-bottom: 15px; /* Espacement entre les groupes de formulaires */
+}
+
+.form-group label {
+  display: inline-block; /* Affichage en ligne des étiquettes des champs de formulaire */
+  margin-bottom: 5px; /* Espacement en bas de l'étiquette */
+}
+
+.form-control {
+  border-radius: 2px; /* Bord arrondi des champs de formulaire */
+  box-shadow: none;
+  border-color: #dddddd;
+}
+
+textarea.form-control {
+  resize: vertical; /* Redimensionnement vertical uniquement pour les zones de texte */
+}
+
+/*** FormDelete ***/
+
+.text-warning {
+  color: #f0ad4e; /* Couleur du texte en jaune */
+}
+
+.text-warning small {
+  font-size: 80%; /* Taille de police réduite pour le texte en petit */
+}

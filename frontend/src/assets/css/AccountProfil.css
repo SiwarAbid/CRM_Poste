@@ -1,0 +1,113 @@
+.outer-div,
+.inner-div {
+  height: 450px;
+  max-width: 300px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.inner-div {
+  margin: 0 auto;
+  border-radius: 5px;
+  font-weight: 400;
+  color: #071011;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.front {
+  position: relative;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+}
+
+.front {
+  cursor: pointer;
+  height: 100%;
+  background: #fff;
+  backface-visibility: hidden;
+  border-radius: 5px;
+  box-shadow: 0 15px 10px -10px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+
+.front__bkg-photo {
+  position: relative;
+  height: 150px;
+  width: 300px;
+  background: #0d1551;
+  background-size: cover;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+}
+
+.front__face-photo {
+  position: relative;
+  top: -60px;
+  height: 120px;
+  width: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 5px solid #f9c42a;
+  background: url("../imgs/user.png") no-repeat;
+  background-size: contain;
+  overflow: hidden;
+}
+
+.front__text {
+  position: relative;
+  top: -55px;
+  margin: 0 auto;
+  font-family: "Montserrat";
+  font-size: 18px;
+  backface-visibility: hidden;
+
+  .front__text-header {
+    font-weight: 700;
+    font-family: "Oswald";
+    text-transform: uppercase;
+    font-size: 20px;
+  }
+
+  .front__text-para {
+    position: relative;
+    top: -5px;
+    padding-top: 20px;
+    margin-left: 70px;
+    color: #000;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+    font-weight: 400;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .front-icons {
+    position: relative;
+    top: 0;
+    font-size: 14px;
+    margin-right: 6px;
+    color: gray;
+  }
+
+  .front__text-hover {
+    position: relative;
+    top: 10px;
+    font-size: 10px;
+    color: #f9c42a;
+    backface-visibility: hidden;
+
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+
+    border: 2px solid #fff;
+    padding: 8px 15px;
+    border-radius: 30px;
+
+    background: #f9c42a;
+    color: #fff;
+  }
+}

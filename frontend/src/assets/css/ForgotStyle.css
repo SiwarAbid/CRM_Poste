@@ -1,0 +1,247 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; */
+    height: 0vh;
+
+}
+.box{
+  margin-top: -150px;
+  margin-left: -100px;
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-image: url("../imgs/bgPoste.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.form-title {
+  color: #00c5b2;
+  font-size: 22px;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 15px 0px 30px 0px;
+}
+
+.form-title-sc {
+  color: #2c3638;
+  font-size: 18px;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 15px 0px 30px 0px;
+}
+
+.form {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  padding: 15px 30px;
+  /* background: #0c1859; */
+  margin-top: 100px;
+}
+
+.form-controll {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-controll:not(:last-of-type) {
+  margin-bottom: 33px;
+}
+
+.form-input {
+  position: relative;
+  width: 100%;
+}
+
+.form-input input,
+.form-input textarea {
+  display: block;
+  width: 100%;
+  height: 41.5px;
+  margin-top: 8px;
+  padding-right: 15px;
+  padding-left: 15px;
+  font-size: 16px;
+  line-height: 40px;
+  color: #27708c;
+  background: #eef9fe;
+  border: 1px solid #cddbef;
+  border-radius: 4px;
+}
+a,
+p {
+  font-size: 14px;
+  color: #000;
+  display: flex;
+  text-decoration: none;
+  align-items: center;
+}
+
+.form-controll label {
+  font-size: 14px;
+  color: #27708c;
+}
+
+input:focus + label,
+input:valid + label,
+textarea:focus + label,
+textarea:valid + label {
+  bottom: 100%;
+  z-index: 9;
+  transition: all 0.1s ease-in-out;
+}
+
+textarea {
+  resize: none;
+  min-height: 50px;
+}
+
+input:focus {
+  border-bottom: 1px solid #00c5b2;
+}
+
+.form-submit {
+  position: relative;
+  width: 100%;
+  margin: 14px 80px;
+}
+
+.form-submit .form-btn {
+  width: 50%;
+  padding: 10px;
+  background: #ffff;
+  box-shadow: inset 0 0 0 2px #d9cb0d;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  letter-spacing: 0.5px;
+  color: #d9cb0d;
+  cursor: pointer;
+}
+
+.form-submit .form-btn:hover button[type="submit"] {
+  background: #ffff;
+  box-shadow: inset 0 0 0 2px #d9cb0d;
+  transition: all 0.2s ease-out;
+}
+
+.grid-2 {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 30px;
+}
+
+.step-tab-items {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  justify-content: center;
+}
+
+.step-tab-items .step-item {
+  position: relative;
+  list-style: none;
+  width: 25px;
+  height: 25px;
+  background: #e2e2e2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.step-tab-items .step-item.active {
+  background: #000;
+  color: #fff;
+}
+
+.step-tab-items .step-item:not(:last-child) {
+  margin-right: 45px;
+}
+
+.step-tab-items .step-item:not(:last-of-type)::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 2px;
+  background: rgb(241, 239, 239);
+  left: calc(100% + 10px);
+}
+
+.step-tab-items .step-item.active::before {
+  background: #000;
+}
+
+.step-tabs .step-tab {
+  display: none;
+}
+
+.step-tabs .step-tab.active {
+  display: block;
+}
+.step-tab {
+  background: white;
+  border: 0 none;
+  border-radius: 3px;
+  padding: 20px 30px;
+  box-sizing: border-box;
+  min-width: 360px;
+  min-height: 400px;
+  position: relative;
+}
+
+.card-arrierplan {
+  min-width: 400px;
+  min-height: 450px;
+  background: white;
+  border-radius: 3px;
+  margin-left: 30px;
+  margin-top: 15px;
+  position: absolute;
+  z-index: 0;
+}
+
+.step-tab:not(:first-of-type) {
+  display: none;
+}
+
+.form-wrapper.forgot.is-active {
+  animation: showLayer 0.3s ease-in forwards;
+  margin-left: -400px;
+  padding: 50px;
+}
+
